@@ -15,8 +15,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.EventFee;
+import br.com.gathering.entity.Round;
 import br.com.gathering.repository.EventRepository;
+import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
+import jakarta.transaction.Transactional;
 
 @Service
 public class EventService extends AbstractService<Event> {
@@ -25,6 +28,9 @@ public class EventService extends AbstractService<Event> {
 
 	@Autowired
 	private EventRepository repository;
+
+	@Autowired
+	private RoundRepository roundRepository;
 
 	public static Sort getSort() {
 		return Sort.by(Order.asc("idGathering"), Order.asc("createdAt"));
@@ -58,14 +64,18 @@ public class EventService extends AbstractService<Event> {
         return event;
 	}
 
+	@Transactional
 	public Event save(Event model) {
-		model.init();
-		validate(model);
-//		return repository.save(model);		
-		LogHelper.info(log, "Saving", "payload", model);
-        Event saved = repository.save(model);
-        LogHelper.info(log, "Saved", "id", saved.getId());
-        return saved;
+	    model.init();
+	    validate(model);
+
+	    LogHelper.info(log, "Saving", "payload", model);
+	    Event saved = repository.save(model);
+	    LogHelper.info(log, "Saved", "id", saved.getId());
+
+	    updateRoundsBasedOnFees(saved);
+
+	    return saved;
 	}
 
 	private void validate(Event model) {
@@ -86,6 +96,83 @@ public class EventService extends AbstractService<Event> {
 	            );
 	        }
 	        LogHelper.info(log, "Valid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
+	    }
+	}
+
+	private void updateRoundsBasedOnFees(Event event) {
+
+	    LogHelper.info(log, "Updating rounds after fee changes", "eventId", event.getId());
+
+	    List<Round> rounds = roundRepository.findByIdEvent(event.getId());
+
+	    for (Round round : rounds) {
+
+	        int players = round.getPlayers();
+
+	        EventFee fee = event.getFees()
+	            .stream()
+	            .filter(f -> f.getPlayers() == players)
+	            .findFirst()
+	            .orElse(null);
+
+	        double oldPrize = round.getPrize();
+	        double oldLoser = round.getLoserPot();
+
+	        if (fee == null) {
+
+	            // REMOVIDO → aplicar regra padrão
+	            double newPrize = players * event.getRoundFee();
+	            double newLoser = 0;
+
+	            boolean changed = (oldPrize != newPrize) || (oldLoser != newLoser);
+
+	            if (changed) {
+	                LogHelper.info(log,
+	                    "Removing fee config",
+	                    "roundId", round.getId(),
+	                    "newPrize", String.format("%.2f", newPrize),
+	                    "newLoserPot", String.format("%.2f", newLoser)
+	                );
+
+	                round.setPrize(newPrize);
+	                round.setLoserPot(newLoser);
+	                roundRepository.save(round);
+	            }
+
+	            continue;
+	        }
+
+	        // Caso exista configuração
+	        double newPrize = fee.getPrizeFee();
+	        double newLoser = fee.getLoserFee();
+
+	        boolean changed = false;
+
+	        if (oldPrize != newPrize) {
+	            LogHelper.info(log,
+	                "Updating prizePot",
+	                "roundId", round.getId(),
+	                "old", String.format("%.2f", oldPrize),
+	                "new", String.format("%.2f", newPrize)
+	            );
+	            round.setPrize(newPrize);
+	            changed = true;
+	        }
+
+	        if (oldLoser != newLoser) {
+	            LogHelper.info(log,
+	                "Updating loserPot",
+	                "roundId", round.getId(),
+	                "old", String.format("%.2f", oldLoser),
+	                "new", String.format("%.2f", newLoser)
+	            );
+	            round.setLoserPot(newLoser);
+	            changed = true;
+	        }
+
+	        if (changed) {
+	            roundRepository.save(round);
+	        }
 	    }
 	}
 
