@@ -29,7 +29,8 @@ SELECT
 	player_name,
 	RANK() OVER (
         PARTITION BY id_gathering
-        ORDER BY (rank_balance + loser_pot + confra_pot) DESC, rounds ASC
+        ORDER BY (rank_balance) DESC, rounds ASC
+        -- ORDER BY (rank_balance + loser_pot + confra_pot) DESC, rounds ASC
     ) AS rank,
 	events,
 	wins,
