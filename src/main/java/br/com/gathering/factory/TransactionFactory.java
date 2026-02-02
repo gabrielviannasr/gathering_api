@@ -18,15 +18,11 @@ public class TransactionFactory {
      */
     public static List<Transaction> fromResults(Event event, List<Result> results) {
         LocalDateTime createdAt = event.getCreatedAt(); // usa a data do evento
-        String format = event.getFormat().getName();
 
         return results.stream()
             .flatMap(result -> Stream.of(
-                createTransaction(event, result, TransactionType.INSCRICAO, createdAt, -event.getConfraFee(),
-                		String.format("Evento %s", format)),
-
-                createTransaction(event, result, TransactionType.RESULTADO, createdAt, result.getFinalBalance(),
-                		String.format("%dº Lugar - %s", result.getRank(), format))
+                createTransaction(event, result, TransactionType.INSCRICAO, createdAt, -event.getConfraFee()),
+                createTransaction(event, result, TransactionType.RESULTADO, createdAt, result.getFinalBalance())
             ))
             .collect(Collectors.toList());
     }
@@ -36,8 +32,7 @@ public class TransactionFactory {
             Result result,
             TransactionType type,
             LocalDateTime createdAt,
-            Double amount,
-            String description) {
+            Double amount) {
 
         return Transaction.builder()
             .idGathering(event.getIdGathering())
@@ -46,7 +41,7 @@ public class TransactionFactory {
             .idTransactionType(type.getId())
             .createdAt(createdAt)
             .amount(amount)
-            .description(description)
+//            .description(type.getDescription())
             .build();
     }
 }
