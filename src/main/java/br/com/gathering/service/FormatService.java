@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,13 @@ public class FormatService extends AbstractService<Format> {
 	public List<Format> getList(Format model) {
 		List<Format> result = repository.findAll(getExample(model), getSort());
         LogHelper.info(log, "Fetched list", "count", result.size());
+        return result;
+	}
+
+	public Page<Format> getPage(Format model, Sort sort, int page, int size) {
+		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+        Page<Format> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+        LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
         return result;
 	}
 

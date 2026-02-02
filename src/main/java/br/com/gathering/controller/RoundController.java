@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +37,15 @@ public class RoundController {
 	public List<Round> getList(Round model) {
 		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
 		return service.getList(model);
+	}
+
+	@GetMapping("/page")
+	public Page<Round> getPage(Round model,
+			@SortDefault.SortDefaults({ @SortDefault(sort = "idEvent"), @SortDefault(sort = "round") }) Sort sort,
+			@RequestParam int page,
+			@RequestParam int size) {
+		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
+		return service.getPage(model, sort, page, size);
 	}
 
 	@GetMapping("/{id}")

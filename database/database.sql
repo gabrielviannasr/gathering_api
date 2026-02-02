@@ -500,6 +500,7 @@ CREATE OR REPLACE VIEW gathering.vw_gathering_player_wallet AS
         g.name AS gathering_name,
         p.id AS id_player,
         p.name AS player_name,
+        COUNT(DISTINCT t.id_event) FILTER (WHERE t.id_player = p.id) AS events,
         COALESCE(SUM(t.amount), 0) AS wallet
     FROM
         gathering.player p
@@ -573,7 +574,8 @@ SELECT
 	player_name,
 	RANK() OVER (
         PARTITION BY id_gathering
-        ORDER BY (rank_balance + loser_pot + confra_pot) DESC, rounds ASC
+        ORDER BY (rank_balance) DESC, rounds ASC
+        -- ORDER BY (rank_balance + loser_pot + confra_pot) DESC, rounds ASC
     ) AS rank,
 	events,
 	wins,

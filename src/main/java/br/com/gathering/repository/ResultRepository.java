@@ -92,4 +92,5 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
 				id_event = :idEvent
 			""")
 	EventSummaryProjection getSummaryProjection(@Param("idEvent") Long idEvent);
+
 }

@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,13 @@ public class RoundService extends AbstractService<Round> {
 		List<Round> result = repository.findAll(getExample(model), getSort());
 		LogHelper.info(log, "Fetched list", "count", result.size());
 		return result;
+	}
+
+	public Page<Round> getPage(Round model, Sort sort, int page, int size) {
+		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+        Page<Round> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+        LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+        return result;
 	}
 
 	public Round getById(Long id) {
