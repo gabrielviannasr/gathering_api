@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.gathering</groupId>
 	<artifactId>api-gathering</artifactId>
-	<version>0.2.2-ALPHA</version>
+	<version>0.2.3-ALPHA</version>
 	<name>api-gathering</name>
 	<description>Gathering API - Gestão de confras e eventos de jogos em grupo</description>
 	<properties>
