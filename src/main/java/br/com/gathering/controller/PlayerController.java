@@ -61,8 +61,8 @@ public class PlayerController {
 		return service.save(model);
 	}
 
-	@PutMapping
-	public Player update(@RequestParam Long id, @RequestBody PlayerDTO dto) {
+	@PutMapping("/{id}")
+	public Player update(@PathVariable Long id, @RequestBody PlayerDTO dto) {
 		Player model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);

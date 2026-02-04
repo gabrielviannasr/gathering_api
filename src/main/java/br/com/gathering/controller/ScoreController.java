@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.gathering.dto.ScoreDTO;
@@ -50,8 +49,8 @@ public class ScoreController {
 		return service.save(model);
 	}
 
-	@PutMapping
-	public Score update(@RequestParam Long id, @RequestBody ScoreDTO dto) {
+	@PutMapping("/{id}")
+	public Score update(@PathVariable Long id, @RequestBody ScoreDTO dto) {
 		Score model = dto.toModel();
 		model.setId(id);
 		model.init();

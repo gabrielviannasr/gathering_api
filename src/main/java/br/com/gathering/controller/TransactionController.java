@@ -61,8 +61,8 @@ public class TransactionController {
 		return service.save(model);
 	}
 
-	@PutMapping
-	public Transaction update(@RequestParam Long id, @RequestBody TransactionDTO dto) {
+	@PutMapping("/{id}")
+	public Transaction update(@PathVariable Long id, @RequestBody TransactionDTO dto) {
 		Transaction model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);

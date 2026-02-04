@@ -61,8 +61,8 @@ public class RoundController {
 		return service.save(model);
 	}
 
-	@PutMapping
-	public Round update(@RequestParam Long id, @RequestBody RoundDTO dto) {
+	@PutMapping("/{id}")
+	public Round update(@PathVariable Long id, @RequestBody RoundDTO dto) {
 		Round model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);

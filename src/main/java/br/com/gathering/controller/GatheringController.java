@@ -61,8 +61,8 @@ public class GatheringController {
 		return service.save(model); 
 	}
 
-	@PutMapping
-	public Gathering update(@RequestParam Long id, @RequestBody GatheringDTO dto) {
+	@PutMapping("/{id}")
+	public Gathering update(@PathVariable Long id, @RequestBody GatheringDTO dto) {
 		Gathering model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);

@@ -61,8 +61,8 @@ public class EventController {
 		return service.save(model);
 	}
 
-	@PutMapping
-	public Event update(@RequestParam Long id, @RequestBody EventDTO dto) {
+	@PutMapping("/{id}")
+	public Event update(@PathVariable Long id, @RequestBody EventDTO dto) {
 		Event model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
