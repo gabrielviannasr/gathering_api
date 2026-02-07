@@ -65,8 +65,7 @@ public class EventService extends AbstractService<Event> {
 	}
 
 	@Transactional
-	public Event save(Event model) {
-	    model.init();
+	public Event save(Event model) {	    
 	    validate(model);
 
 	    LogHelper.info(log, "Saving", "payload", model);
