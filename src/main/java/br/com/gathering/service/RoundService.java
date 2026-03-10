@@ -54,6 +54,20 @@ public class RoundService extends AbstractService<Round> {
 		return round;
 	}
 
+	public Round getByRound(Round model) {
+		LogHelper.info(log, "Fetching by Round", "round", model.getRound(), "idEvent", model.getIdEvent());
+
+		Optional<Round> optional = repository.findOne(getExample(model));
+		
+		if (optional.isEmpty()) {
+			LogHelper.warn(log, "Not found", "round", model.getRound(), "idEvent", model.getIdEvent());
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		Round round = optional.get();
+		LogHelper.info(log, "Found", "id", round.getId());
+		return round;
+	}
+
 	public Round save(Round model) {
 		model.init();
 		// validate(model);

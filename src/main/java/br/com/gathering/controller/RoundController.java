@@ -48,6 +48,15 @@ public class RoundController {
 		return service.getPage(model, sort, page, size);
 	}
 
+	@GetMapping("{round}/event/{idEvent}")
+	public Round getByRound(@PathVariable Long idEvent, @PathVariable Integer round) {
+		LogHelper.info(log, RouteHelper.GET(PATH, "{round}/event/{idEvent}"), "round", round, "idEvent", idEvent);
+		Round model = new Round();
+		model.setIdEvent(idEvent);
+		model.setRound(round);
+		return service.getByRound(model);
+	}
+	
 	@GetMapping("/{id}")
 	public Round getById(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/{id}"), "id", id);
