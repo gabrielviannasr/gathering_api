@@ -49,9 +49,9 @@ public class RoundService extends AbstractService<Round> {
 			LogHelper.warn(log, "Not found", "id", id);
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		Round event = optional.get();
-		LogHelper.info(log, "Found", "id", event.getId());
-		return event;
+		Round round = optional.get();
+		LogHelper.info(log, "Found", "id", round.getId());
+		return round;
 	}
 
 	public Round save(Round model) {
