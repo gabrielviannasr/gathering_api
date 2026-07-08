@@ -23,59 +23,64 @@ import br.com.gathering.util.LogHelper;
 import br.com.gathering.util.RouteHelper;
 
 @RestController
-@RequestMapping("/round")
+@RequestMapping("/event/{idEvent}/round")
 public class RoundController {
 
 	private static final Logger log = LogHelper.getLogger();
-	private static final String PATH = "/round";
+	private static final String PATH = "/event/{idEvent}/round";
 	private static final String ENTITY = "Round";
 
 	@Autowired
 	private RoundService service;
 
 	@GetMapping
-	public List<Round> getList(Round model) {
+	public List<Round> getList(@PathVariable Long idEvent, Round model) {
+		model.setIdEvent(idEvent);
 		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
 		return service.getList(model);
 	}
 
 	@GetMapping("/page")
-	public Page<Round> getPage(Round model,
+	public Page<Round> getPage(@PathVariable Long idEvent,
+			Round model,
 			@SortDefault.SortDefaults({ @SortDefault(sort = "idEvent"), @SortDefault(sort = "round") }) Sort sort,
 			@RequestParam int page,
 			@RequestParam int size) {
+		model.setIdEvent(idEvent);
 		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
 		return service.getPage(model, sort, page, size);
 	}
 
-	@GetMapping("{round}/event/{idEvent}")
+	@GetMapping("/{round}")
 	public Round getByRound(@PathVariable Long idEvent, @PathVariable Integer round) {
-		LogHelper.info(log, RouteHelper.GET(PATH, "{round}/event/{idEvent}"), "round", round, "idEvent", idEvent);
+		LogHelper.info(log, RouteHelper.GET(PATH, "{round}"), "round", round, "idEvent", idEvent);
 		Round model = new Round();
 		model.setIdEvent(idEvent);
 		model.setRound(round);
 		return service.getByRound(model);
 	}
-	
-	@GetMapping("/{id}")
-	public Round getById(@PathVariable Long id) {
-		LogHelper.info(log, RouteHelper.GET(PATH, "/{id}"), "id", id);
-		return service.getById(id);
+
+	@GetMapping("/id/{idRound}")
+	public Round getById(@PathVariable Long idRound) {
+		LogHelper.info(log, RouteHelper.GET(PATH, "/id/{idRound}"), "idRound", idRound);
+		return service.getById(idRound);
 	}
 
 	@PostMapping
-	public Round save(@RequestBody RoundDTO dto) {
+	public Round save(@PathVariable Long idEvent, @RequestBody RoundDTO dto) {
 		Round model = dto.toModel();
+		model.setIdEvent(idEvent);
 		LogHelper.info(log, RouteHelper.POST(PATH), "payload", model);
 		return service.save(model);
 	}
 
-	@PutMapping("/{id}")
-	public Round update(@PathVariable Long id, @RequestBody RoundDTO dto) {
+	@PutMapping("/{round}")
+	public Round update(@PathVariable Long idEvent, @PathVariable Integer round, @RequestBody RoundDTO dto) {
 		Round model = dto.toModel();
-		model.setId(id);
-		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.save(model);
+		model.setIdEvent(idEvent);
+		model.setRound(round);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{round}"), "round", round, "payload", model);
+		return service.update(model);
 	}
 
 }

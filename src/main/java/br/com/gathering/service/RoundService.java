@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.gathering.entity.Round;
 import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class RoundService extends AbstractService<Round> {
@@ -75,6 +76,24 @@ public class RoundService extends AbstractService<Round> {
 		Round saved = repository.save(model);
 		LogHelper.info(log, "Saved", "id", saved.getId());
 		return saved;
+	}
+	
+	public Round update(Round model) {
+
+		Round current = repository
+			    .findByIdEventAndRound(model.getIdEvent(), model.getRound())
+			    .orElseThrow(() ->
+			        new EntityNotFoundException("Round not found"));
+
+	    current.setPlayers(model.getPlayers());
+	    current.setIdPlayerWinner(model.getIdPlayerWinner());
+	    current.setCanceled(model.getCanceled());
+
+	    LogHelper.info(log, "Updating", "payload", current);
+	    Round saved = repository.save(current);
+	    LogHelper.info(log, "Updated", "id", saved.getId());
+
+	    return saved;
 	}
 
 }
