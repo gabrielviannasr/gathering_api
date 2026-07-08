@@ -28,6 +28,7 @@ CREATE TABLE gathering.gathering (
 	id_player INT NOT NULL, -- createdBy and the person in charge of the event
 	year INT DEFAULT EXTRACT(YEAR FROM CURRENT_DATE),
     name VARCHAR(20),
+
 	CONSTRAINT fk_gathering_player FOREIGN KEY (id_player) REFERENCES gathering.player(id)
 );
 
@@ -61,6 +62,7 @@ CREATE TABLE gathering.event (
     loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0),
     confra_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (confra_pot >= 0),
     prize NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize >= 0),
+
 	CONSTRAINT fk_event_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id),
     CONSTRAINT fk_event_format FOREIGN KEY (id_format) REFERENCES gathering.format(id)
 );
@@ -95,7 +97,9 @@ CREATE TABLE gathering.event_fee (
     players INT NOT NULL CHECK (players >= 0),
     prize_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize_fee >= 0),
     loser_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_fee >= 0),
+
     CONSTRAINT fk_event_fee_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
+
     CONSTRAINT uq_event_fee_event_players UNIQUE (id_event, players)
 );
 
@@ -126,9 +130,12 @@ CREATE TABLE gathering.round (
     prize NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize >= 0),
     loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0),
     canceled BOOLEAN NOT NULL DEFAULT false,
+
     CONSTRAINT fk_round_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
     CONSTRAINT fk_round_format FOREIGN KEY (id_format) REFERENCES gathering.format(id),
-    CONSTRAINT fk_round_player_winner FOREIGN KEY (id_player_winner) REFERENCES gathering.player(id)
+    CONSTRAINT fk_round_player_winner FOREIGN KEY (id_player_winner) REFERENCES gathering.player(id),
+
+    CONSTRAINT uq_round_event_round UNIQUE (id_event, round)
 );
 
 COMMENT ON TABLE gathering.round IS
@@ -158,8 +165,10 @@ CREATE TABLE gathering.score (
     id INT DEFAULT nextval('gathering.sequence_score'::regclass) PRIMARY KEY,
     id_round INT NOT NULL,
     id_player INT NOT NULL,
+
     CONSTRAINT fk_score_round FOREIGN KEY (id_round) REFERENCES gathering.round(id),
     CONSTRAINT fk_score_player FOREIGN KEY (id_player) REFERENCES gathering.player(id),
+
     CONSTRAINT uq_score_round_player UNIQUE (id_round, id_player)
 );
 
@@ -189,8 +198,10 @@ CREATE TABLE gathering.result (
     rank_balance NUMERIC(10,2) NOT NULL DEFAULT 0, -- net result before pot distribution
     loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0), -- share of loser pot
     final_balance NUMERIC(10,2) NOT NULL DEFAULT 0, -- final result after pot distribution
+
     CONSTRAINT fk_result_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
     CONSTRAINT fk_result_player FOREIGN KEY (id_player) REFERENCES gathering.player(id),
+
     CONSTRAINT uq_result_event_player UNIQUE (id_event, id_player) -- prevents duplicates
 );
 
