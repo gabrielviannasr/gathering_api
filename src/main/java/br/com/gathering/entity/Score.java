@@ -25,8 +25,8 @@ import lombok.Setter;
 public class Score {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gathering.sequence_round_player")
-	@SequenceGenerator(name = "gathering.sequence_round_player", sequenceName = "gathering.sequence_round_player", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gathering.sequence_score")
+	@SequenceGenerator(name = "gathering.sequence_score", sequenceName = "gathering.sequence_score", allocationSize = 1)
 	private Long id;
 
 	@Column(name = "id_round", nullable = false)

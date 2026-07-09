@@ -29,7 +29,7 @@ public class RoundDTO {
 
     private Integer round;
 
-    private Integer players;
+    private Integer playersTotal;
 
     private Double prize;
 
@@ -45,7 +45,7 @@ public class RoundDTO {
         round.setIdPlayerWinner(this.idPlayerWinner);
         round.setCreatedAt(this.createdAt);
         round.setRound(this.round);
-        round.setPlayers(this.players);
+        round.setPlayersTotal(this.playersTotal);
         round.setPrize(this.prize);
         round.setLoserPot(this.loserPot);
         round.setCanceled(this.canceled);
@@ -62,7 +62,7 @@ public class RoundDTO {
 	            + "\tidPlayerWinner: " + this.idPlayerWinner + ",\n"
 	            + "\tcreatedAt: " + this.createdAt + ",\n"
 	            + "\tround: " + this.round + ",\n"
-	            + "\tplayers: " + this.players + ",\n"
+	            + "\tplayersTotal: " + this.playersTotal + ",\n"
 	            + "\tprize: " + this.prize + ",\n"
 	            + "\tloserPot: " + this.loserPot + ",\n"
 	            + "\tcanceled: " + this.canceled + ",\n"

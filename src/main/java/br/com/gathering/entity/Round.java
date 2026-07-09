@@ -1,6 +1,7 @@
 package br.com.gathering.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -58,8 +61,8 @@ public class Round {
    @Column(nullable = false)
     private Integer round;
 
-	@Column(nullable = false)
-    private Integer players;
+	@Column(name = "players", nullable = false)
+    private Integer playersTotal;
 
 	@Column(name = "prize", nullable = false)
     private Double prize;
@@ -70,9 +73,18 @@ public class Round {
 	@Column(nullable = false)
     private Boolean canceled;
 
+	@ManyToMany
+	@JoinTable(
+	    name = "round_player",
+	    schema = "gathering",
+	    joinColumns = @JoinColumn(name = "id_round"),
+	    inverseJoinColumns = @JoinColumn(name = "id_player")
+	)
+	private List<Player> players;
+
 	public void init() {
 	    this.createdAt = (this.createdAt == null) ? LocalDateTime.now() : this.createdAt;
-	    this.players = (this.players == null) ? 0 : this.players;
+	    this.playersTotal = (this.playersTotal == null) ? 0 : this.playersTotal;
 	    this.prize = (this.prize == null) ? 0 : this.prize;
 	    this.loserPot = (this.loserPot == null) ? 0 : this.loserPot;
 	    this.canceled = (this.canceled == null) ? false : this.canceled;
@@ -87,7 +99,7 @@ public class Round {
 	            + "\tidPlayerWinner: " + this.idPlayerWinner + ",\n"
 	            + "\tcreatedAt: " + this.createdAt + ",\n"
 	            + "\tround: " + this.round + ",\n"
-	            + "\tplayers: " + this.players + ",\n"
+	            + "\tplayersTotal: " + this.playersTotal + ",\n"
 	            + "\tprize: " + this.prize + ",\n"
 	            + "\tloserPot: " + this.loserPot + ",\n"
 	            + "\tcanceled: " + this.canceled + ",\n"

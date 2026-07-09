@@ -6,7 +6,7 @@ CREATE SEQUENCE gathering.sequence_gathering START 1;
 CREATE SEQUENCE gathering.sequence_player START 1;
 CREATE SEQUENCE gathering.sequence_result START 1;
 CREATE SEQUENCE gathering.sequence_round START 1;
-CREATE SEQUENCE gathering.sequence_score START 1;
+CREATE SEQUENCE gathering.sequence_round_player START 1;
 CREATE SEQUENCE gathering.sequence_transaction START 1;
 CREATE SEQUENCE gathering.sequence_transaction_type START 1;
 /* CREATE SEQUENCES */
@@ -161,24 +161,22 @@ COMMENT ON COLUMN gathering.round.loser_pot IS 'Valor total destinado ao pote do
 COMMENT ON COLUMN gathering.round.canceled IS 'Indica se a rodada foi cancelada (true) ou válida (false).';
 
 -- 🧮 Tabela de placar por rodada (Round_Player)
-CREATE TABLE gathering.score (
-    id INT DEFAULT nextval('gathering.sequence_score'::regclass) PRIMARY KEY,
+CREATE TABLE gathering.round_player (
     id_round INT NOT NULL,
     id_player INT NOT NULL,
 
-    CONSTRAINT fk_score_round FOREIGN KEY (id_round) REFERENCES gathering.round(id),
-    CONSTRAINT fk_score_player FOREIGN KEY (id_player) REFERENCES gathering.player(id),
-
-    CONSTRAINT uq_score_round_player UNIQUE (id_round, id_player)
+    CONSTRAINT pk_round_player PRIMARY KEY (id_round, id_player),
+    CONSTRAINT fk_round_player_round FOREIGN KEY (id_round) REFERENCES gathering.round(id),
+    CONSTRAINT fk_round_player_player FOREIGN KEY (id_player) REFERENCES gathering.player(id)
 );
 
-COMMENT ON TABLE gathering.score IS
+COMMENT ON TABLE gathering.round_player IS
 'Armazena a participação dos jogadores em cada rodada.
 Cada registro vincula um jogador a uma rodada específica, garantindo uma única entrada por jogador por rodada.';
 
-COMMENT ON COLUMN gathering.score.id_round IS 'Identificador da rodada.';
+COMMENT ON COLUMN gathering.round_player.id_round IS 'Identificador da rodada.';
 
-COMMENT ON COLUMN gathering.score.id_player IS 'Identificador do jogador participante da rodada.';
+COMMENT ON COLUMN gathering.round_player.id_player IS 'Identificador do jogador participante da rodada.';
 
 -- ======================================================
 -- 🏁 Tabela de resultados (Result)
@@ -270,7 +268,7 @@ CREATE OR REPLACE VIEW gathering.vw_event_confra_pot AS
         COUNT(DISTINCT s.id_player) AS players,
         COUNT(DISTINCT s.id_player) * e.confra_fee AS confra_pot
     FROM
-        gathering.score s
+        gathering.round_player s
         INNER JOIN gathering.round r ON r.id = s.id_round
         INNER JOIN gathering.player p ON p.id = s.id_player
         INNER JOIN gathering.event e ON e.id = r.id_event
@@ -317,7 +315,7 @@ CREATE OR REPLACE VIEW gathering.vw_event_player_balance AS
             -- SUM(CASE WHEN r.id_player_winner = p.id THEN r.prize ELSE 0 END) AS positive,
             COUNT(s.id_player) * e.round_fee AS negative
         FROM
-            gathering.score s
+            gathering.round_player s
             INNER JOIN gathering.round r ON r.id = s.id_round
             INNER JOIN gathering.player p ON p.id = s.id_player
             INNER JOIN gathering.event e ON e.id = r.id_event
@@ -627,10 +625,10 @@ CREATE INDEX IF NOT EXISTS idx_event_id_format ON gathering.event(id_format);
 CREATE INDEX IF NOT EXISTS idx_round_id_event ON gathering.round(id_event);
 CREATE INDEX IF NOT EXISTS idx_round_id_player_winner ON gathering.round(id_player_winner);
 
--- 🧱 Tabela gathering.score
+-- 🧱 Tabela gathering.round_player 
 -- 🔹 Usadas em vw_event_player_balance, base do ranking e do resumo.
-CREATE INDEX IF NOT EXISTS idx_score_id_round ON gathering.score(id_round);
-CREATE INDEX IF NOT EXISTS idx_score_id_player ON gathering.score(id_player);
+CREATE INDEX IF NOT EXISTS idx_round_player_id_round ON gathering.round_player (id_round);
+CREATE INDEX IF NOT EXISTS idx_round_player_id_player ON gathering.round_player (id_player);
 
 -- 🧱 Tabela gathering.transaction
 -- 🔹 Essencial para as views de saldo (vw_gathering_player_wallet) e consultas de movimentação.

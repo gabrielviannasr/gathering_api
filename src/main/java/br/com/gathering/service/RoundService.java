@@ -85,7 +85,7 @@ public class RoundService extends AbstractService<Round> {
 			    .orElseThrow(() ->
 			        new EntityNotFoundException("Round not found"));
 
-	    current.setPlayers(model.getPlayers());
+	    current.setPlayersTotal(model.getPlayersTotal());
 	    current.setIdPlayerWinner(model.getIdPlayerWinner());
 	    current.setCanceled(model.getCanceled());
 

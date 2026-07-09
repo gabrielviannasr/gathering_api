@@ -106,11 +106,11 @@ public class EventService extends AbstractService<Event> {
 
 	    for (Round round : rounds) {
 
-	        int players = round.getPlayers();
+	        int playersTotal = round.getPlayersTotal();
 
 	        EventFee fee = event.getFees()
 	            .stream()
-	            .filter(f -> f.getPlayers() == players)
+	            .filter(f -> f.getPlayers() == playersTotal)
 	            .findFirst()
 	            .orElse(null);
 
@@ -120,7 +120,7 @@ public class EventService extends AbstractService<Event> {
 	        if (fee == null) {
 
 	            // REMOVIDO → aplicar regra padrão
-	            double newPrize = players * event.getRoundFee();
+	            double newPrize = playersTotal * event.getRoundFee();
 	            double newLoser = 0;
 
 	            boolean changed = (oldPrize != newPrize) || (oldLoser != newLoser);
