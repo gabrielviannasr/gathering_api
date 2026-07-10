@@ -1,7 +1,10 @@
 package br.com.gathering.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Round;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +40,8 @@ public class RoundDTO {
 
     private Boolean canceled;
 
+    private List<RoundPlayerDTO> players;
+
     public Round toModel() {
         Round round = new Round();
 //        round.setId(this.id);
@@ -49,6 +54,17 @@ public class RoundDTO {
         round.setPrize(this.prize);
         round.setLoserPot(this.loserPot);
         round.setCanceled(this.canceled);
+
+        round.setPlayers(
+        	    this.players.stream()
+        	        .map(dto -> Player.builder()
+        	            .id(dto.getId())
+        	            .build())
+        	        // Collect into a mutable list.
+        	        // Stream.toList() returns an immutable list (Java 16+), which causes
+        	        // UnsupportedOperationException when Hibernate updates the collection.
+        	        .collect(Collectors.toList())
+        	);
 
         return round;
     }

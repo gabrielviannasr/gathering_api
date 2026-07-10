@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Round;
+import br.com.gathering.repository.PlayerRepository;
 import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +27,9 @@ public class RoundService extends AbstractService<Round> {
 
 	@Autowired
 	private RoundRepository repository;
+	
+	@Autowired
+	private PlayerRepository playerRepository;
 
 	public static Sort getSort() {
 		return Sort.by(Order.asc("createdAt"));
@@ -88,6 +93,22 @@ public class RoundService extends AbstractService<Round> {
 	    current.setPlayersTotal(model.getPlayersTotal());
 	    current.setIdPlayerWinner(model.getIdPlayerWinner());
 	    current.setCanceled(model.getCanceled());
+
+	    // Load managed Player entities from the database before updating the relationship.
+	    // Using detached instances created from the DTO may prevent Hibernate from
+	    // synchronizing the join table correctly.
+//	    current.setPlayers(model.getPlayers());	  
+	    List<Player> players = playerRepository.findAllById(
+	            model.getPlayers()
+	                    .stream()
+	                    .map(Player::getId)
+	                    .toList());
+
+	    // Keep the managed collection instance and update only its contents.
+	    // Replacing the collection may break Hibernate's change tracking for @ManyToMany.
+//    	current.setPlayers(players);
+	    current.getPlayers().clear();
+	    current.getPlayers().addAll(players);
 
 	    LogHelper.info(log, "Updating", "payload", current);
 	    Round saved = repository.save(current);
