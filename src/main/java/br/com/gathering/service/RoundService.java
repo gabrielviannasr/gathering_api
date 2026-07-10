@@ -13,8 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.entity.Event;
+import br.com.gathering.entity.EventFee;
 import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Round;
+import br.com.gathering.repository.EventRepository;
 import br.com.gathering.repository.PlayerRepository;
 import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
@@ -30,6 +33,9 @@ public class RoundService extends AbstractService<Round> {
 	
 	@Autowired
 	private PlayerRepository playerRepository;
+	
+	@Autowired
+	private EventRepository eventRepository;
 
 	public static Sort getSort() {
 		return Sort.by(Order.asc("createdAt"));
@@ -110,11 +116,48 @@ public class RoundService extends AbstractService<Round> {
 	    current.getPlayers().clear();
 	    current.getPlayers().addAll(players);
 
+	    calculate(current);
+	    validate(current);
+
 	    LogHelper.info(log, "Updating", "payload", current);
 	    Round saved = repository.save(current);
 	    LogHelper.info(log, "Updated", "id", saved.getId());
 
 	    return saved;
+	}
+	
+	private void validate(Round model) {
+
+	    if (model.getIdPlayerWinner() != null &&
+	        model.getPlayers().stream().noneMatch(p -> p.getId().equals(model.getIdPlayerWinner()))) {
+
+//	        throw new BusinessException("Winner must be one of the round players.");
+	    	throw new ResponseStatusException(
+	    		    HttpStatus.BAD_REQUEST,
+	    		    "Winner must be one of the round players.");
+	    }
+
+	}
+	
+	private void calculate(Round model) {
+		model.setPlayersTotal(model.getPlayers().size());
+		
+		Event event = eventRepository.findById(model.getIdEvent())
+			    .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+		
+		EventFee fee = event.getFees()
+			    .stream()
+			    .filter(f -> f.getPlayers().equals(model.getPlayersTotal()))
+			    .findFirst()
+			    .orElse(null);
+		
+		if (fee != null) {
+		    model.setPrize(fee.getPrizeFee());
+		    model.setLoserPot(fee.getLoserFee());
+		} else {
+		    model.setPrize(event.getRoundFee() * model.getPlayersTotal());
+		    model.setLoserPot(0.0);
+		}
 	}
 
 }
