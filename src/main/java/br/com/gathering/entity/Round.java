@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -83,6 +84,7 @@ public class Round {
 	    joinColumns = @JoinColumn(name = "id_round"),
 	    inverseJoinColumns = @JoinColumn(name = "id_player")
 	)
+	@OrderBy("name ASC")
 	private List<Player> players;
 
 	public void init() {
