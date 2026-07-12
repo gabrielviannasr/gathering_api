@@ -15,7 +15,9 @@ CREATE SEQUENCE gathering.sequence_transaction_type START 1;
 -- 🧍‍♂️ Tabela de jogadores / participantes
 CREATE TABLE gathering.player (
     id INT DEFAULT nextval('gathering.sequence_player'::regclass) PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+
+    CONSTRAINT uq_player_name UNIQUE (name)
 );
 
 COMMENT ON TABLE gathering.player IS
