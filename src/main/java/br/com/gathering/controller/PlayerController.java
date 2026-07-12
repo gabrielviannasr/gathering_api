@@ -41,7 +41,7 @@ public class PlayerController {
 
 	@GetMapping("/page")
 	public Page<Player> getPage(Player model,
-			@SortDefault.SortDefaults({ @SortDefault(sort = "name"), @SortDefault(sort = "username") }) Sort sort,
+			@SortDefault.SortDefaults({ @SortDefault(sort = "name") }) Sort sort,
 			@RequestParam int page,
 			@RequestParam int size) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
