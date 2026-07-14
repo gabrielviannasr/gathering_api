@@ -63,4 +63,10 @@ public class GatheringService extends AbstractService<Gathering> {
         return saved;
 	}
 
+	public List<Integer> getYears() {
+	    List<Integer> years = repository.findAvailableYears();
+	    LogHelper.info(log, "Fetched years", "count", years.size());
+	    return years;
+	}
+
 }

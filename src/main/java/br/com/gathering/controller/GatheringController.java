@@ -68,5 +68,9 @@ public class GatheringController {
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
 		return service.save(model);
 	}
-
+	@GetMapping("/year")
+	public List<Integer> getYears() {
+	    LogHelper.info(log, RouteHelper.GET(PATH, "/year"));
+	    return service.getYears();
+	}
 }
