@@ -50,24 +50,35 @@ COMMENT ON TABLE gathering.format IS
 
 -- 🎯 Tabela de eventos
 CREATE TABLE gathering.event (
-    id INT DEFAULT nextval('gathering.sequence_event'::regclass) PRIMARY KEY,
-    id_gathering INT NOT NULL,
-    id_format INT,
+	id int4 NOT NULL DEFAULT nextval('gathering.sequence_event'::regclass),
+	id_gathering int4 NOT NULL,
+	id_format int4 NULL,
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    result_updated_at TIMESTAMP,
+
     players INT NOT NULL DEFAULT 0,
     rounds INT NOT NULL DEFAULT 0,
+
     confra_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (confra_fee >= 0),
     round_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (round_fee >= 0),
-    loser_fee4 NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_fee4 >= 0),
-    loser_fee5 NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_fee5 >= 0),
-    loser_fee6 NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_fee6 >= 0),    
+
     loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0),
     confra_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (confra_pot >= 0),
     prize NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize >= 0),
 
-	CONSTRAINT fk_event_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id),
-    CONSTRAINT fk_event_format FOREIGN KEY (id_format) REFERENCES gathering.format(id)
+	CONSTRAINT event_confra_fee_check CHECK ((confra_fee >= (0)::numeric)),
+	CONSTRAINT event_confra_pot_check CHECK ((confra_pot >= (0)::numeric)),
+	CONSTRAINT event_loser_pot_check CHECK ((loser_pot >= (0)::numeric)),
+    CONSTRAINT event_prize_check CHECK ((prize >= (0)::numeric)),
+	CONSTRAINT event_round_fee_check CHECK ((round_fee >= (0)::numeric)),
+
+	CONSTRAINT fk_event_format FOREIGN KEY (id_format) REFERENCES gathering."format"(id),
+	CONSTRAINT fk_event_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id)
 );
+CREATE INDEX idx_event_id_format ON gathering.event USING btree (id_format);
+CREATE INDEX idx_event_id_gathering ON gathering.event USING btree (id_gathering);
 
 COMMENT ON TABLE gathering.event IS
 'Representa um evento individual pertencente a uma confra (gathering).
@@ -77,21 +88,25 @@ COMMENT ON COLUMN gathering.event.id_gathering IS 'Identificador da confra à qu
 
 COMMENT ON COLUMN gathering.event.id_format IS 'Formato de jogo associado ao evento.';
 
+COMMENT ON COLUMN gathering.event.created_at IS 'Data e hora de criação do evento.';
+
+COMMENT ON COLUMN gathering.event.updated_at IS 'Data e hora da última alteração que impacta o resultado do evento.';
+
+COMMENT ON COLUMN gathering.event.result_updated_at IS 'Data e hora da última atualização dos resultados persistidos do evento.';
+
+COMMENT ON COLUMN gathering.event.players IS 'Número de jogadores inscritos no evento.';
+
+COMMENT ON COLUMN gathering.event.rounds IS 'Número de rodadas do evento.';
+
 COMMENT ON COLUMN gathering.event.confra_fee IS 'Taxa destinada ao pote da confra.';
 
 COMMENT ON COLUMN gathering.event.round_fee IS 'Taxa de inscrição cobrada em cada rodada do evento.';
-
-COMMENT ON COLUMN gathering.event.loser_fee4 IS 'Taxa destinada ao pote dos derrotados quando a rodada tiver 4 jogadores.';
-
-COMMENT ON COLUMN gathering.event.loser_fee5 IS 'Taxa destinada ao pote dos derrotados quando a rodada tiver 5 jogadores.';
-
-COMMENT ON COLUMN gathering.event.loser_fee6 IS 'Taxa destinada ao pote dos derrotados quando a rodada tiver 6  jogadores.';
 
 COMMENT ON COLUMN gathering.event.loser_pot IS 'Total acumulado destinado ao pote dos derrotados.';
 
 COMMENT ON COLUMN gathering.event.confra_pot IS 'Total acumulado destinado ao pote da confra.';
 
-COMMENT ON COLUMN gathering.event.prize IS 'Total acumulado de premiação do evento (pote dos vencedores).';
+COMMENT ON COLUMN gathering.event.prize IS 'Total acumulado destinado à premiação do evento.';
 
 CREATE TABLE gathering.event_fee (
     id INT DEFAULT nextval('gathering.sequence_event_fee'::regclass) PRIMARY KEY,
