@@ -50,6 +50,12 @@ public class Event {
 
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
+	
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
+
+	@Column(name = "result_updated_at")
+	private LocalDateTime resultUpdatedAt;
 
 	@Column(nullable = false)
     private Integer players;
@@ -76,7 +82,10 @@ public class Event {
 	private List<EventFee> fees;
 
 	public void init() {
-	    this.createdAt = (this.createdAt == null) ? LocalDateTime.now() : this.createdAt;
+		LocalDateTime now = LocalDateTime.now();
+
+		this.createdAt = (this.createdAt == null) ? now : this.createdAt;
+		this.updatedAt = (this.updatedAt == null) ? now : this.updatedAt;
 	    this.players = (this.players == null) ? 0 : this.players;
 	    this.rounds = (this.rounds == null) ? 0 : this.rounds;
 	    this.confraFee = (this.confraFee == null) ? 0.0 : this.confraFee;
@@ -109,6 +118,8 @@ public class Event {
         sb.append("\tidGathering: ").append(idGathering).append(",\n");
         sb.append("\tidFormat: ").append(idFormat).append(",\n");
         sb.append("\tcreatedAt: ").append(createdAt).append(",\n");
+        sb.append("\tupdatedAt: ").append(updatedAt).append(",\n");
+        sb.append("\tresultUpdatedAt: ").append(resultUpdatedAt).append(",\n");
         sb.append("\tplayers: ").append(players).append(",\n");
         sb.append("\trounds: ").append(rounds).append(",\n");
         sb.append("\tconfraFee: ").append(confraFee).append(",\n");
