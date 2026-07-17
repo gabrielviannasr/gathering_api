@@ -34,17 +34,15 @@ public class ResultController {
 
     @GetMapping("/{idEvent}")
     public List<Result> getResult(@PathVariable Long idEvent) {
-    	System.out.println("idEvent: " + idEvent);
     	LogHelper.info(log, RouteHelper.GET(PATH, "/{idEvent}"), "idEvent", idEvent);
         return service.getResult(idEvent);
     }
 
-//    @GetMapping("/{idEvent}/player/{idPlayer}")
-//    public Result getResult(@PathVariable Long idEvent, @PathVariable Long idPlayer) {
-//    	System.out.println("idEvent: " + idEvent);
-//    	LogHelper.info(log, RouteHelper.GET(PATH, "/{idEvent}/player/{idPlayer}"), "idEvent", idEvent, "idPlayer", idPlayer);
-//        return service.getResult(idEvent, idPlayer);
-//    }
+    @GetMapping("/{idEvent}/player/{idPlayer}")
+    public Result getResult(@PathVariable Long idEvent, @PathVariable Long idPlayer) {
+    	LogHelper.info(log, RouteHelper.GET(PATH, "/{idEvent}/player/{idPlayer}"), "idEvent", idEvent, "idPlayer", idPlayer);
+        return service.getResult(idEvent, idPlayer);
+    }
 
 //    @PostMapping("/{idEvent}")
 //    public List<Result> saveResult(@PathVariable Long idEvent) {

@@ -3,15 +3,19 @@ package br.com.gathering.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.calculation.ResultCalculator;
 import br.com.gathering.entity.Event;
+import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Result;
 import br.com.gathering.entity.Transaction;
 import br.com.gathering.factory.TransactionFactory;
@@ -23,6 +27,7 @@ import br.com.gathering.projection.event.RankCountProjection;
 import br.com.gathering.repository.EventRepository;
 import br.com.gathering.repository.ResultRepository;
 import br.com.gathering.repository.TransactionRepository;
+import br.com.gathering.util.LogHelper;
 
 @Service
 public class ResultService extends AbstractService<Result> {
@@ -105,6 +110,25 @@ public class ResultService extends AbstractService<Result> {
 		return list;
 	}
 
+	public Result getResult(Long idEvent, Long idPlayer) {
+
+	    LogHelper.info(log, "Fetching result", "idEvent", idEvent, "idPlayer", idPlayer);
+
+	    Optional<Result> optional = repository.findByIdEventAndIdPlayer(idEvent, idPlayer);
+
+	    if (optional.isEmpty()) {
+	        LogHelper.warn(log, "Result not found", "idEvent", idEvent, "idPlayer", idPlayer);
+
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+	    }
+
+	    Result result = optional.get();
+
+	    LogHelper.info(log, "Result found", "idEvent", idEvent, "idPlayer", idPlayer);
+
+	    return result;
+	}
+	
 	@Transactional
 	public List<Result> getResult(Long idEvent) {
 	    Event event = eventRepository.findById(idEvent)

@@ -1,6 +1,7 @@
 package br.com.gathering.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,8 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
 
     void deleteByIdEvent(Long idEvent);
 
+    Optional<Result> findByIdEventAndIdPlayer(Long idEvent, Long idPlayer);
+    
     List<Result> findByIdEvent(Long idEvent);
 
     @Query(nativeQuery = true, value = """
