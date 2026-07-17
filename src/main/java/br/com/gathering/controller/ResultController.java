@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,12 +42,6 @@ public class ResultController {
     	LogHelper.info(log, RouteHelper.GET(PATH, "/{idEvent}/player/{idPlayer}"), "idEvent", idEvent, "idPlayer", idPlayer);
         return service.getResult(idEvent, idPlayer);
     }
-
-//    @PostMapping("/{idEvent}")
-//    public List<Result> saveResult(@PathVariable Long idEvent) {
-//    	LogHelper.info(log, RouteHelper.POST(PATH, "/{idEvent}"), "idEvent", idEvent);
-//        return service.saveResult(idEvent);
-//    }
 
     @GetMapping("/{idEvent}/confra-pot")
     public ConfraPotProjection getConfraPot(@PathVariable Long idEvent) {

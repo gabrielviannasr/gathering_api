@@ -15,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.calculation.ResultCalculator;
 import br.com.gathering.entity.Event;
-import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Result;
 import br.com.gathering.entity.Transaction;
 import br.com.gathering.factory.TransactionFactory;

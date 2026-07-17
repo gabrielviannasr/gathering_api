@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,9 +51,6 @@ public class Result {
 
 	@Column(nullable = false)
 	private Integer rank;
-
-	@Transient
-	private String playerName;
 
 	@Column(nullable = false)
     private Integer wins;

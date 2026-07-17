@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Result;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.event.LoserPotProjection;
@@ -17,12 +18,18 @@ public final class ResultCalculator {
 	// The second worst-ranked players share the smallest piece of loserPot
 	private static final double SECOND_WORST_RANK_LOSER_POT_PERCENTAGE = 0.4;
 
+	private static Player buildPlayer(RankProjection projection) {
+	    return Player.builder()
+	        .id(projection.getIdPlayer())
+	        .name(projection.getPlayerName())
+	        .build();
+	}
+
 	private static List<Result> buildResults(Long idEvent, List<RankProjection> ranks) {
 	    return ranks.stream()
 	        .map(p -> Result.builder()
 	            .idEvent(idEvent)
 	            .idPlayer(p.getIdPlayer())
-	            .playerName(p.getPlayerName())
 	            .rank(p.getRank())
 	            .wins(p.getWins())
 	            .rounds(p.getRounds())
@@ -31,6 +38,7 @@ public final class ResultCalculator {
 	            .rankBalance(p.getRankBalance())
 	            .loserPot(0.0)
 	            .finalBalance(p.getRankBalance())
+	            .player(buildPlayer(p))
 	            .build())
 	        .collect(Collectors.toList());
 	}
@@ -101,7 +109,9 @@ public final class ResultCalculator {
 
 	private static void logResults(List<Result> results) {
 		int maxNameLength = results.stream()
-				.map(Result::getPlayerName)
+				.map(Result::getPlayer)
+				.filter(Objects::nonNull)
+				.map(Player::getName)
 				.filter(Objects::nonNull)
 				.mapToInt(String::length)
 				.max()
@@ -113,7 +123,7 @@ public final class ResultCalculator {
 			// "\t{ rank: %-2d | name: %-" + Player.NAME_LENGTH + "s | rankBalance: %8.2f | loserPot: %8.2f | finalBalance: %8.2f }%n",
 			"\t{ rank: %-2d | name: %-" + maxNameLength + "s | rankBalance: %8.2f | loserPot: %8.2f | finalBalance: %8.2f }%n",
 			item.getRank(),
-			item.getPlayerName(),
+			item.getPlayer().getName(),
 			item.getRankBalance(),
 			item.getLoserPot(),
 			item.getFinalBalance()
