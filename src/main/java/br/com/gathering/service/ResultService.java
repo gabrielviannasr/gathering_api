@@ -1,5 +1,6 @@
 package br.com.gathering.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -110,102 +111,6 @@ public class ResultService extends AbstractService<Result> {
 		return list;
 	}
 
-	/**
-	 * Calculates and persists the event results.
-	 * The process is transactional — if any error occurs,
-	 * no partial result is committed.
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public List<Result> saveResult(Long idEvent) {
-		log.info("Starting result calculation for event {}", idEvent);
-
-		try {
-			// 1. Remove previous transactions to avoid duplicates
-			int oldCount = transactionRepository.findByIdEvent(idEvent).size();
-			if (oldCount > 0) {
-				transactionRepository.deleteByIdEvent(idEvent);
-				log.info("Deleted {} previous transactions for event {}", oldCount, idEvent);
-			}
-
-			// 2. Remove previous results to avoid duplicates
-			oldCount = repository.findByIdEvent(idEvent).size();
-			if (oldCount > 0) {
-				repository.deleteByIdEvent(idEvent);
-				log.info("Deleted {} previous results for event {}", oldCount, idEvent);
-			}
-
-			// 3. Compute new results
-			List<Result> results = getResult(idEvent);
-			if (results == null || results.isEmpty()) {
-				// System.out.printf("No results generated for event %d%n", idEvent);
-				log.warn("No results generated for event {}", idEvent);
-				return Collections.emptyList();
-			}
-
-		    // 4. Persist data
-		    List<Result> savedResults = repository.saveAll(results);
-		    log.info("{} results saved successfully for event {}", savedResults.size(), idEvent);	
-		    // System.out.printf("%d results saved for event %d%n", savedResults.size(), idEvent);
-
-			// 5. Log summary
-			int maxNameLength = savedResults.stream()
-				.map(Result::getPlayerName)
-				.filter(Objects::nonNull)
-				.mapToInt(String::length)
-				.max()
-				.orElse(25);
-
-			savedResults.forEach(item ->
-				//    log.info(String.format(
-				// 	"{ rank: %-2d | name: %-" + maxNameLength + "s | rankBalance: %8.2f | loserPot: %8.2f | finalBalance: %8.2f }",
-				System.out.printf(String.format(
-					"\t{ rank: %-2d | name: %-" + maxNameLength + "s | rankBalance: %8.2f | loserPot: %8.2f | finalBalance: %8.2f }%n",
-					item.getRank(),
-					item.getPlayerName(),
-					item.getRankBalance(),
-					item.getLoserPot(),
-					item.getFinalBalance()
-				))
-            );
-
-			// 6. Create and save transactions (via factory)
-			Event event = eventRepository.findById(idEvent)
-					.orElseThrow(() -> new IllegalArgumentException("Event not found for id " + idEvent));
-
-			List<Transaction> transactions = TransactionFactory.fromResults(event, results);
-			transactionRepository.saveAll(transactions);
-
-			// 7. Update event summary fields
-			EventSummaryProjection summary = repository.getSummaryProjection(idEvent);
-			
-			if (summary == null) {
-				log.warn("No summary data found for event {}", idEvent);
-				return savedResults;
-			}
-            
-			event.setPlayers(summary.getPlayers());
-			event.setRounds(summary.getRounds());
-			event.setLoserPot(summary.getLoserPot());
-			event.setConfraPot(summary.getConfraPot());
-			event.setPrize(summary.getPrize());
-
-			eventRepository.save(event);
-			log.info("Event {} updated with players={}, rounds={}, confraPot={}, loserPot={}, prize={}",
-					idEvent,
-					summary.getPlayers(),
-					summary.getRounds(),
-					summary.getConfraPot(),
-					summary.getLoserPot(),
-					summary.getPrize());
-
-			return savedResults;
-
-		} catch (Exception ex) {
-			log.error("Error while calculating/saving results for event {}: {}", idEvent, ex.getMessage(), ex);
-			throw ex; // Auto rollback by Spring
-		}
-	}
-
 	// Helper method to distribute loserPot equally
 	private void distributeLoserPotEqually(Long idEvent, List<Result> results, Double loserPot, List<RankCountProjection> rankCount) {
 		// LoserPot equally divided among the worst-ranked players
@@ -259,7 +164,7 @@ public class ResultService extends AbstractService<Result> {
 		});
 	}
 
-	public List<Result> getResult(Long idEvent) {
+	private List<Result> calculateRank(Long idEvent) {
 		// Rank data without loser pot distribution
 		List<RankProjection> ranks = repository.getRankProjection(idEvent);
 
@@ -323,6 +228,65 @@ public class ResultService extends AbstractService<Result> {
 		);
 
 		return results;
+	}
+
+	@Transactional
+	public List<Result> getResult(Long idEvent) {
+	    Event event = eventRepository.findById(idEvent)
+	            .orElseThrow(() -> new IllegalArgumentException("Event not found: " + idEvent));
+
+	    if (needsRefresh(event)) {
+	        refreshResult(event);
+	    }
+
+	    return repository.findByIdEvent(idEvent);
+	}
+	
+	private boolean needsRefresh(Event event) {
+	    return event.getResultUpdatedAt() == null
+	        || event.getUpdatedAt().isAfter(event.getResultUpdatedAt());
+	}
+
+	public void refreshResult(Event event) {
+
+	    List<Result> results = calculateRank(event.getId());
+
+	    if (results.isEmpty()) {
+	        return;
+	    }
+
+	    deleteSnapshot(event.getId());
+
+	    saveResultSnapshot(event, results);
+	}
+
+	private void deleteSnapshot(Long idEvent) {
+
+	    transactionRepository.deleteByIdEvent(idEvent);
+
+	    repository.deleteByIdEvent(idEvent);
+
+	    transactionRepository.flush();
+
+	    repository.flush();
+	}
+
+	private void saveTransactions(Event event, List<Result> results) {
+
+	    List<Transaction> transactions = TransactionFactory.fromResults(event, results);
+
+	    transactionRepository.saveAll(transactions);
+	}
+
+	private void saveResultSnapshot(Event event, List<Result> results) {
+
+	    repository.saveAll(results);
+
+	    saveTransactions(event, results);
+
+	    event.setResultUpdatedAt(LocalDateTime.now());
+
+	    eventRepository.save(event);
 	}
 	
 	public EventSummaryProjection getSummaryProjection(Long idEvent) {

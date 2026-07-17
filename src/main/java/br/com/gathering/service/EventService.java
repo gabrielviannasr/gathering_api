@@ -1,5 +1,6 @@
 package br.com.gathering.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -175,4 +176,9 @@ public class EventService extends AbstractService<Event> {
 	    }
 	}
 
+	public void markAsUpdated(Long idEvent) {
+	    Event event = getById(idEvent);
+	    event.setUpdatedAt(LocalDateTime.now());
+	    repository.save(event);
+	}
 }

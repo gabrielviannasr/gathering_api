@@ -39,11 +39,18 @@ public class ResultController {
         return service.getResult(idEvent);
     }
 
-    @PostMapping("/{idEvent}")
-    public List<Result> saveResult(@PathVariable Long idEvent) {
-    	LogHelper.info(log, RouteHelper.POST(PATH, "/{idEvent}"), "idEvent", idEvent);
-        return service.saveResult(idEvent);
-    }
+//    @GetMapping("/{idEvent}/player/{idPlayer}")
+//    public Result getResult(@PathVariable Long idEvent, @PathVariable Long idPlayer) {
+//    	System.out.println("idEvent: " + idEvent);
+//    	LogHelper.info(log, RouteHelper.GET(PATH, "/{idEvent}/player/{idPlayer}"), "idEvent", idEvent, "idPlayer", idPlayer);
+//        return service.getResult(idEvent, idPlayer);
+//    }
+
+//    @PostMapping("/{idEvent}")
+//    public List<Result> saveResult(@PathVariable Long idEvent) {
+//    	LogHelper.info(log, RouteHelper.POST(PATH, "/{idEvent}"), "idEvent", idEvent);
+//        return service.saveResult(idEvent);
+//    }
 
     @GetMapping("/{idEvent}/confra-pot")
     public ConfraPotProjection getConfraPot(@PathVariable Long idEvent) {
