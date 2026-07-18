@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.gathering.dto.GatheringResultDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Player;
 import br.com.gathering.projection.RankProjection;
@@ -93,7 +94,7 @@ public class DashboardService {
         return list;
     }
 
-    public List<ResultProjection> getResultProjection(Long idGathering) {
+    public List<GatheringResultDTO> getResultProjection(Long idGathering) {
         LogHelper.info(log, "Fetching result ranking", "idGathering", idGathering);
         List<ResultProjection> list = repository.getResultProjection(idGathering);
 
@@ -117,7 +118,31 @@ public class DashboardService {
             ))
         );
 
-        return list;
+
+		return list.stream()
+		    .map(this::toDTO)
+		    .toList();
+    }
+
+    private GatheringResultDTO toDTO(ResultProjection item) {
+        return GatheringResultDTO.builder()
+            .player(
+                Player.builder()
+                    .id(item.getIdPlayer())
+                    .name(item.getPlayerName())
+                    .build()
+            )
+            .rank(item.getRank())
+            .events(item.getEvents())
+            .wins(item.getWins())
+            .rounds(item.getRounds())
+            .positive(item.getPositive())
+            .negative(item.getNegative())
+            .rankBalance(item.getRankBalance())
+            .loserPot(item.getLoserPot())
+            .confraPot(item.getConfraPot())
+            .finalBalance(item.getFinalBalance())
+            .build();
     }
 
     public GatheringSummaryProjection getSummaryProjection(Long idGathering) {
