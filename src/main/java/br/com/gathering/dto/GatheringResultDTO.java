@@ -8,8 +8,9 @@ import lombok.Getter;
 @Builder
 public class GatheringResultDTO {
 
+	private Long idPlayer;
     private Player player;
-
+    
     private Integer rank;
     private Integer events;
     private Integer wins;

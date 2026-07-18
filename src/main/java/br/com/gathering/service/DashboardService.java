@@ -126,7 +126,8 @@ public class DashboardService {
 
     private GatheringResultDTO toDTO(ResultProjection item) {
         return GatheringResultDTO.builder()
-            .player(
+            .idPlayer(item.getIdPlayer())
+    		.player(
                 Player.builder()
                     .id(item.getIdPlayer())
                     .name(item.getPlayerName())
