@@ -103,7 +103,7 @@ public class DashboardService {
         return list;
     }
 
-    public List<GatheringResultResponseDTO> getResultProjection(Long idGathering) {
+    public List<GatheringResultResponseDTO> getGatheringResults(Long idGathering) {
         LogHelper.info(log, "Fetching result ranking", "idGathering", idGathering);
         List<ResultProjection> list = repository.getResultProjection(idGathering);
 
@@ -131,6 +131,21 @@ public class DashboardService {
 		return list.stream()
 		    .map(this::buildGatheringResultResponse)
 		    .toList();
+    }
+
+    public GatheringResultResponseDTO getGatheringResult(Long idGathering, Long idPlayer) {
+
+        LogHelper.info(log, "Fetching player result",
+            "idGathering", idGathering,
+            "idPlayer", idPlayer);
+
+        ResultProjection result = repository
+            .getResultProjection(idGathering, idPlayer)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Resultado do jogador não encontrado"));
+
+        return buildGatheringResultResponse(result);
     }
 
     private GatheringResultResponseDTO buildGatheringResultResponse(ResultProjection item) {

@@ -39,12 +39,17 @@ public class DashboardController {
     	LogHelper.info(log, "GET /rank", "idGathering", idGathering);
         return service.getRankProjection(idGathering);
     }
-
+ 
     @GetMapping("/{idGathering}/result")
-    public List<GatheringResultResponseDTO> getResultProjection(@PathVariable Long idGathering) {
-        System.out.println("idGathering: " + idGathering);
+    public List<GatheringResultResponseDTO> getGatheringResults(@PathVariable Long idGathering) {
         LogHelper.info(log, "GET /result", "idGathering", idGathering);
-        return service.getResultProjection(idGathering);
+        return service.getGatheringResults(idGathering);
+    }
+
+    @GetMapping("/{idGathering}/result/player/{idPlayer}")
+    public GatheringResultResponseDTO getGatheringResult(@PathVariable Long idGathering, @PathVariable Long idPlayer) {
+        LogHelper.info(log, "GET /result/player/{idPlayer}", "idGathering", idGathering, "idPlayer", idPlayer);
+        return service.getGatheringResult(idGathering, idPlayer);
     }
 
     @GetMapping("/{idGathering}/summary")
