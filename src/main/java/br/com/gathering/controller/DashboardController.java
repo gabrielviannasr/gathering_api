@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.gathering.dto.GatheringResultResponseDTO;
-import br.com.gathering.dto.GatheringSummaryResponseDTO;
+import br.com.gathering.dto.response.GatheringResultResponseDTO;
+import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.FormatProjection;
 import br.com.gathering.projection.gathering.PlayerTransactionProjection;

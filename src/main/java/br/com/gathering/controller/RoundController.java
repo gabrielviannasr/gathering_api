@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.gathering.dto.RoundDTO;
+import br.com.gathering.dto.request.RoundDTO;
 import br.com.gathering.entity.Round;
 import br.com.gathering.service.RoundService;
 import br.com.gathering.util.LogHelper;

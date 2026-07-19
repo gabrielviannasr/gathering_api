@@ -1,4 +1,4 @@
-package br.com.gathering.dto;
+package br.com.gathering.dto.request;
 
 import java.time.LocalDateTime;
 import java.util.List;

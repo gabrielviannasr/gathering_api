@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.gathering.dto.TransactionDTO;
+import br.com.gathering.dto.request.TransactionDTO;
 import br.com.gathering.entity.Transaction;
 import br.com.gathering.service.TransactionService;
 import br.com.gathering.util.LogHelper;

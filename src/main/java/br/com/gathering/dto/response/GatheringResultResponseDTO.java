@@ -1,4 +1,4 @@
-package br.com.gathering.dto;
+package br.com.gathering.dto.response;
 
 import br.com.gathering.entity.Player;
 import lombok.Builder;

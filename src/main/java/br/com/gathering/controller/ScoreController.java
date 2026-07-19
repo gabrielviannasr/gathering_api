@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.gathering.dto.ScoreDTO;
+import br.com.gathering.dto.request.ScoreDTO;
 import br.com.gathering.entity.Score;
 import br.com.gathering.service.ScoreService;
 import br.com.gathering.util.LogHelper;

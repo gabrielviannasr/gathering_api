@@ -1,4 +1,4 @@
-package br.com.gathering.dto;
+package br.com.gathering.dto.request;
 
 import br.com.gathering.entity.Result;
 import jakarta.persistence.Column;

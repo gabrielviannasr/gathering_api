@@ -1,4 +1,4 @@
-package br.com.gathering.dto;
+package br.com.gathering.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

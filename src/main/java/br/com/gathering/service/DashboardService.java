@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import br.com.gathering.dto.GatheringResponseDTO;
-import br.com.gathering.dto.GatheringResultResponseDTO;
-import br.com.gathering.dto.GatheringSummaryResponseDTO;
+import br.com.gathering.dto.response.GatheringResponseDTO;
+import br.com.gathering.dto.response.GatheringResultResponseDTO;
+import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
