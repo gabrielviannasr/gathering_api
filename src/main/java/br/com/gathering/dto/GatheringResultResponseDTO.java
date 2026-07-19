@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GatheringResultDTO {
+public class GatheringResultResponseDTO {
 
 	private Long idPlayer;
     private Player player;

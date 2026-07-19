@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.gathering.dto.GatheringResultDTO;
+import br.com.gathering.dto.GatheringResultResponseDTO;
+import br.com.gathering.dto.GatheringSummaryResponseDTO;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.FormatProjection;
-import br.com.gathering.projection.gathering.GatheringSummaryProjection;
 import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.service.DashboardService;
@@ -41,14 +41,14 @@ public class DashboardController {
     }
 
     @GetMapping("/{idGathering}/result")
-    public List<GatheringResultDTO> getResultProjection(@PathVariable Long idGathering) {
+    public List<GatheringResultResponseDTO> getResultProjection(@PathVariable Long idGathering) {
         System.out.println("idGathering: " + idGathering);
         LogHelper.info(log, "GET /result", "idGathering", idGathering);
         return service.getResultProjection(idGathering);
     }
 
     @GetMapping("/{idGathering}/summary")
-    public GatheringSummaryProjection getSummaryProjection(@PathVariable Long idGathering) {
+    public GatheringSummaryResponseDTO getSummaryProjection(@PathVariable Long idGathering) {
         LogHelper.info(log, "GET /summary", "idGathering", idGathering);
         return service.getSummaryProjection(idGathering);
     }

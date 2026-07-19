@@ -5,11 +5,16 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import br.com.gathering.dto.GatheringResultDTO;
+import br.com.gathering.dto.GatheringResponseDTO;
+import br.com.gathering.dto.GatheringResultResponseDTO;
+import br.com.gathering.dto.GatheringSummaryResponseDTO;
 import br.com.gathering.entity.Format;
+import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.FormatProjection;
@@ -18,6 +23,7 @@ import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.projection.gathering.ResultProjection;
 import br.com.gathering.repository.DashboardRepository;
+import br.com.gathering.repository.GatheringRepository;
 import br.com.gathering.util.LogHelper;
 
 @Transactional(readOnly = true)
@@ -28,6 +34,9 @@ public class DashboardService {
 
     @Autowired
     private DashboardRepository repository;
+    
+    @Autowired
+    private GatheringRepository gatheringRepository;
 
     public List<PlayerWalletProjection> getWalletBalance(Long idGathering) {
         LogHelper.info(log, "Fetching wallet balance", "idGathering", idGathering);
@@ -94,7 +103,7 @@ public class DashboardService {
         return list;
     }
 
-    public List<GatheringResultDTO> getResultProjection(Long idGathering) {
+    public List<GatheringResultResponseDTO> getResultProjection(Long idGathering) {
         LogHelper.info(log, "Fetching result ranking", "idGathering", idGathering);
         List<ResultProjection> list = repository.getResultProjection(idGathering);
 
@@ -120,12 +129,12 @@ public class DashboardService {
 
 
 		return list.stream()
-		    .map(this::toDTO)
+		    .map(this::buildGatheringResultResponse)
 		    .toList();
     }
 
-    private GatheringResultDTO toDTO(ResultProjection item) {
-        return GatheringResultDTO.builder()
+    private GatheringResultResponseDTO buildGatheringResultResponse(ResultProjection item) {
+        return GatheringResultResponseDTO.builder()
             .idPlayer(item.getIdPlayer())
     		.player(
                 Player.builder()
@@ -146,15 +155,36 @@ public class DashboardService {
             .build();
     }
 
-    public GatheringSummaryProjection getSummaryProjection(Long idGathering) {
+    public GatheringSummaryResponseDTO getSummaryProjection(Long idGathering) {
         LogHelper.info(log, "Fetching summary", "idGathering", idGathering);
         GatheringSummaryProjection summary = repository.getSummaryProjection(idGathering);
         if (summary == null) {
             LogHelper.warn(log, "No summary found for gathering", "idGathering", idGathering);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resumo da confra não encontrado");
         } else {
             LogHelper.info(log, "Fetched summary successfully", "idGathering", idGathering);
         }
-        return summary;
+//        return summary;
+
+        Gathering gathering = gatheringRepository.findById(idGathering)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confra não encontrada"));
+
+        return  GatheringSummaryResponseDTO.builder()
+    	    .idGathering(summary.getIdGathering())
+    	    .gathering(
+	    	    GatheringResponseDTO.builder()
+	    	        .id(gathering.getId())
+	    	        .name(gathering.getName())
+	    	        .year(gathering.getYear())
+	    	        .build()
+	    	)
+    	    .events(summary.getEvents())
+    	    .players(summary.getPlayers())
+    	    .rounds(summary.getRounds())
+    	    .loserPot(summary.getLoserPot())
+    	    .confraPot(summary.getConfraPot())
+    	    .prize(summary.getPrize())
+    	    .build();
     }
 
 }
