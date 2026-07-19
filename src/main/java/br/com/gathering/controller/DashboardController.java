@@ -17,56 +17,57 @@ import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.service.DashboardService;
 import br.com.gathering.util.LogHelper;
+import br.com.gathering.util.RouteHelper;
 
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("/dashboard/{idGathering}")
 public class DashboardController {
 
 	private static final Logger log = LogHelper.getLogger();
+	private static final String PATH = "/dashboard/{idGathering}";
 
     @Autowired
     private DashboardService service;
 
-    @GetMapping("/{idGathering}/format")
+    @GetMapping("/format")
     public List<FormatProjection> getFormatProjection(@PathVariable Long idGathering) {
-        LogHelper.info(log, "GET /format", "idGathering", idGathering);
+        LogHelper.info(log, RouteHelper.GET(PATH + "/format"), "idGathering", idGathering);
         return service.getFormatProjection(idGathering);
     }
 
-    @GetMapping("/{idGathering}/rank")
+    @GetMapping("/rank")
     public List<RankProjection> getRankProjection(@PathVariable Long idGathering) {
-    	System.out.println("idGathering: " + idGathering);
-    	LogHelper.info(log, "GET /rank", "idGathering", idGathering);
+    	LogHelper.info(log, RouteHelper.GET(PATH + "/rank"), "idGathering", idGathering);
         return service.getRankProjection(idGathering);
     }
  
-    @GetMapping("/{idGathering}/result")
+    @GetMapping("/result")
     public List<GatheringResultResponseDTO> getGatheringResults(@PathVariable Long idGathering) {
-        LogHelper.info(log, "GET /result", "idGathering", idGathering);
+        LogHelper.info(log, RouteHelper.GET(PATH + "/result"), "idGathering", idGathering);
         return service.getGatheringResults(idGathering);
     }
 
-    @GetMapping("/{idGathering}/result/player/{idPlayer}")
+    @GetMapping("/result/player/{idPlayer}")
     public GatheringResultResponseDTO getGatheringResult(@PathVariable Long idGathering, @PathVariable Long idPlayer) {
-        LogHelper.info(log, "GET /result/player/{idPlayer}", "idGathering", idGathering, "idPlayer", idPlayer);
+        LogHelper.info(log, RouteHelper.GET(PATH + "/result/player/{idPlayer}"), "idGathering", idGathering, "idPlayer", idPlayer);
         return service.getGatheringResult(idGathering, idPlayer);
     }
 
-    @GetMapping("/{idGathering}/summary")
+    @GetMapping("/summary")
     public GatheringSummaryResponseDTO getSummaryProjection(@PathVariable Long idGathering) {
-        LogHelper.info(log, "GET /summary", "idGathering", idGathering);
+        LogHelper.info(log, RouteHelper.GET(PATH + "/summary"), "idGathering", idGathering);
         return service.getSummaryProjection(idGathering);
     }
 
-    @GetMapping("/{idGathering}/transaction")
+    @GetMapping("/transaction")
     public List<PlayerTransactionProjection> getPlayerTransaciton(@PathVariable Long idGathering) {
-        LogHelper.info(log, "GET /transaction", "idGathering", idGathering);
+        LogHelper.info(log, RouteHelper.GET(PATH + "/transaction"), "idGathering", idGathering);
         return service.getPlayerTransaciton(idGathering);
     }
 
-    @GetMapping("/{idGathering}/wallet-balance")
+    @GetMapping("/wallet-balance")
     public List<PlayerWalletProjection> getWalletBalance(@PathVariable Long idGathering) {
-        LogHelper.info(log, "GET /wallet-balance", "idGathering", idGathering);
+        LogHelper.info(log, RouteHelper.GET(PATH + "/wallet-balance"), "idGathering", idGathering);
         return service.getWalletBalance(idGathering);
     }
 
