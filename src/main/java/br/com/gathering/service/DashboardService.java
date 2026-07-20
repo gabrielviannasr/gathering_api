@@ -15,6 +15,8 @@ import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
+import br.com.gathering.dto.response.GatheringWalletResponseDTO;
+import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
@@ -40,11 +42,26 @@ public class DashboardService {
     @Autowired
     private GatheringRepository gatheringRepository;
 
-    public List<PlayerWalletProjection> getWalletBalance(Long idGathering) {
+    public List<GatheringWalletResponseDTO> getWallets(Long idGathering) {
         LogHelper.info(log, "Fetching wallet balance", "idGathering", idGathering);
         List<PlayerWalletProjection> list = repository.getWalletBalance(idGathering);
         LogHelper.info(log, "Fetched wallet balance", "count", list.size());
-        return list;
+
+        return list.stream()
+        		.map(this::buildGatheringWalletResponse)
+        		.toList();
+    }
+
+    private GatheringWalletResponseDTO buildGatheringWalletResponse(PlayerWalletProjection item) {
+    	return GatheringWalletResponseDTO.builder()
+    			.idPlayer(item.getIdPlayer())
+    			.player(
+    					PlayerResponseDTO.builder()
+    					.id(item.getIdPlayer())
+    					.name(item.getPlayerName())
+    					.build())
+    			.wallet(item.getWallet())
+    			.build();
     }
 
     public List<PlayerTransactionProjection> getPlayerTransaciton(Long idGathering) {

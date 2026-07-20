@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
+import br.com.gathering.dto.response.GatheringWalletResponseDTO;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.PlayerTransactionProjection;
-import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.service.DashboardService;
 import br.com.gathering.util.LogHelper;
 import br.com.gathering.util.RouteHelper;
@@ -65,10 +65,10 @@ public class DashboardController {
         return service.getPlayerTransaciton(idGathering);
     }
 
-    @GetMapping("/wallet-balance/{idGathering}")
-    public List<PlayerWalletProjection> getWalletBalance(@PathVariable Long idGathering) {
-        LogHelper.info(log, RouteHelper.GET(PATH + "/wallet-balance/{idGathering}"), "idGathering", idGathering);
-        return service.getWalletBalance(idGathering);
+    @GetMapping("/wallet/{idGathering}")
+    public List<GatheringWalletResponseDTO> getWallets(@PathVariable Long idGathering) {
+        LogHelper.info(log, RouteHelper.GET(PATH + "/wallet/{idGathering}"), "idGathering", idGathering);
+        return service.getWallets(idGathering);
     }
 
 }
