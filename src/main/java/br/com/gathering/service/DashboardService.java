@@ -51,6 +51,21 @@ public class DashboardService {
         		.map(this::buildGatheringWalletResponse)
         		.toList();
     }
+    
+    public GatheringWalletResponseDTO getWallet(Long idGathering, Long idPlayer) {
+
+        LogHelper.info(log, "Fetching wallet balance",
+            "idGathering", idGathering,
+            "idPlayer", idPlayer);
+
+        PlayerWalletProjection result = repository
+            .getWalletBalance(idGathering, idPlayer)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Carteira do jogador não encontrado"));
+
+        return buildGatheringWalletResponse(result);
+    }
 
     private GatheringWalletResponseDTO buildGatheringWalletResponse(PlayerWalletProjection item) {
     	return GatheringWalletResponseDTO.builder()

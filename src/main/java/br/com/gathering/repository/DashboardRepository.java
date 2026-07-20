@@ -54,6 +54,25 @@ public interface DashboardRepository extends ViewRepository {
 				id_gathering, player_name
     	""")
     List<PlayerWalletProjection> getWalletBalance(@Param("idGathering") Long idGathering);
+    
+    @Query(nativeQuery = true, value = """
+    	    SELECT
+				-- id_gathering AS idGathering,
+				-- gathering_name AS gatheringName,
+				id_player AS idPlayer,
+				player_name AS playerName,
+				wallet
+			FROM
+				gathering.vw_gathering_player_wallet
+			WHERE
+				id_gathering = :idGathering
+				AND id_player = :idPlayer
+			ORDER BY
+				id_gathering, player_name
+    	""")
+	Optional<PlayerWalletProjection> getWalletBalance(
+			@Param("idGathering") Long idGathering,
+			@Param("idPlayer") Long idPlayer);
 
     @Query(nativeQuery = true, value = """
     	    SELECT

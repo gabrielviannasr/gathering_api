@@ -70,5 +70,11 @@ public class DashboardController {
         LogHelper.info(log, RouteHelper.GET(PATH + "/wallet/{idGathering}"), "idGathering", idGathering);
         return service.getWallets(idGathering);
     }
+    
+    @GetMapping("/wallet/{idGathering}/player/{idPlayer}")
+    public GatheringWalletResponseDTO getWallet(@PathVariable Long idGathering, @PathVariable Long idPlayer) {
+        LogHelper.info(log, RouteHelper.GET(PATH + "/wallet/{idGathering}/player/{idPlayer"), "idGathering", idGathering, "idPlayer", idPlayer);
+        return service.getWallet(idGathering, idPlayer);
+    }
 
 }
