@@ -5,10 +5,9 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GatheringResponseDTO {
+public class FormatResponseDTO {
 
 	private Long id;
-	private Integer year;
-    private String name;
-
+	private String name;
+    
 }

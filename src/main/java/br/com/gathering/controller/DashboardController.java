@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
 import br.com.gathering.projection.RankProjection;
-import br.com.gathering.projection.gathering.FormatProjection;
 import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.service.DashboardService;
@@ -30,9 +30,9 @@ public class DashboardController {
     private DashboardService service;
 
     @GetMapping("/format/{idGathering}")
-    public List<FormatProjection> getFormatProjection(@PathVariable Long idGathering) {
+    public List<GatheringFormatResponseDTO> getFormatProjection(@PathVariable Long idGathering) {
         LogHelper.info(log, RouteHelper.GET(PATH + "/format/{idGathering}"), "idGathering", idGathering);
-        return service.getFormatProjection(idGathering);
+        return service.getGatheringFormats(idGathering);
     }
 
     @GetMapping("/rank/{idGathering}")

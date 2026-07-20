@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.dto.response.FormatResponseDTO;
+import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
@@ -52,7 +54,7 @@ public class DashboardService {
         return list;
     }
 
-    public List<FormatProjection> getFormatProjection(Long idGathering) {
+    public List<GatheringFormatResponseDTO> getGatheringFormats(Long idGathering) {
         LogHelper.info(log, "Fetching formats", "idGathering", idGathering);
         List<FormatProjection> list = repository.getFormatProjection(idGathering);
         LogHelper.info(log, "Fetched formats", "count", list.size());
@@ -73,9 +75,24 @@ public class DashboardService {
                 item.getRounds()
             ))
         );
-        return list;
+        return list.stream()
+        	    .map(this::buildGatheringFormatResponse)
+        	    .toList();
     }
 
+    private GatheringFormatResponseDTO buildGatheringFormatResponse(FormatProjection item) {
+        return GatheringFormatResponseDTO.builder()
+            .idFormat(item.getIdFormat())
+            .format(
+                FormatResponseDTO.builder()
+                    .id(item.getIdFormat())
+                    .name(item.getFormatName())
+                    .build()
+            )
+            .rounds(item.getRounds())
+            .build();
+    }
+    
     public List<RankProjection> getRankProjection(Long idGathering) {
         LogHelper.info(log, "Fetching player ranking", "idGathering", idGathering);
         List<RankProjection> list = repository.getRankProjection(idGathering);
