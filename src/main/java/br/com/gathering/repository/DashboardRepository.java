@@ -17,28 +17,6 @@ import br.com.gathering.projection.gathering.ResultProjection;
 @Repository
 public interface DashboardRepository extends ViewRepository {
 
-	public static final String SQL_GATHERING_RESULT = """
-    	    SELECT
-    	        id_gathering AS idGathering,
-    	        gathering_name AS gatheringName,
-    	        id_player AS idPlayer,
-    	        player_name AS playerName,
-    	        rank,
-    	        events,
-    	        wins,
-    	        rounds,
-    	        positive,
-    	        negative,
-    	        rank_balance AS rankBalance,
-    	        loser_pot AS loserPot,
-    	        confra_pot AS confraPot,
-    	        final_balance AS finalBalance
-    	    FROM
-    	        gathering.vw_gathering_result
-    	    WHERE
-    	        id_gathering = :idGathering
-			""";
-
     @Query(nativeQuery = true, value = """
     	    SELECT
 				-- id_gathering AS idGathering,
@@ -126,12 +104,51 @@ public interface DashboardRepository extends ViewRepository {
 			""")
 	List<FormatProjection> getFormatProjection(@Param("idGathering") Long idGathering);
 
-    @Query(nativeQuery = true, value = SQL_GATHERING_RESULT)
+    @Query(nativeQuery = true, value = """
+    	    SELECT
+		        id_gathering AS idGathering,
+		        gathering_name AS gatheringName,
+		        id_player AS idPlayer,
+		        player_name AS playerName,
+		        rank,
+		        events,
+		        wins,
+		        rounds,
+		        positive,
+		        negative,
+		        rank_balance AS rankBalance,
+		        loser_pot AS loserPot,
+		        confra_pot AS confraPot,
+		        final_balance AS finalBalance
+		    FROM
+		        gathering.vw_gathering_result
+		    WHERE
+		        id_gathering = :idGathering
+			""")
     List<ResultProjection> getResultProjection(@Param("idGathering") Long idGathering);
 
-    @Query(nativeQuery = true, value = SQL_GATHERING_RESULT + """
-        AND id_player = :idPlayer
-    	""")
+    @Query(nativeQuery = true, value = """
+    	    SELECT
+		        id_gathering AS idGathering,
+		        gathering_name AS gatheringName,
+		        id_player AS idPlayer,
+		        player_name AS playerName,
+		        rank,
+		        events,
+		        wins,
+		        rounds,
+		        positive,
+		        negative,
+		        rank_balance AS rankBalance,
+		        loser_pot AS loserPot,
+		        confra_pot AS confraPot,
+		        final_balance AS finalBalance
+		    FROM
+		        gathering.vw_gathering_result
+		    WHERE
+		        id_gathering = :idGathering
+		        AND id_player = :idPlayer
+			""")
 	Optional<ResultProjection> getResultProjection(
 	    @Param("idGathering") Long idGathering,
 	    @Param("idPlayer") Long idPlayer);
