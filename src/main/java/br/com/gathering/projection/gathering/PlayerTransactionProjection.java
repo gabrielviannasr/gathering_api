@@ -10,6 +10,7 @@ public interface PlayerTransactionProjection {
 	String getPlayerName();
 	Long getIdTransaction();
 	LocalDateTime getCreatedAt();
+	Long getIdTransactionType();
 	String getTransactionTypeName();
 	Double getAmount();
 	String getTransactionDescription();

@@ -61,6 +61,7 @@ public interface DashboardRepository extends ViewRepository {
 				player_name AS playerName,
 				id_transaction AS idTransaction,
 				created_at AS createdAt,
+				id_transaction_type AS idTransactionType,
 				transaction_type_name AS transactionTypeName,
 				amount,
 				transaction_description AS transactionDescription
@@ -71,7 +72,7 @@ public interface DashboardRepository extends ViewRepository {
 			ORDER BY
 				id_gathering, player_name
     	""")
-	List<PlayerTransactionProjection> getPlayerTransaciton(@Param("idGathering") Long idGathering);
+	List<PlayerTransactionProjection> getTransactions(@Param("idGathering") Long idGathering);
     
     @Query(nativeQuery = true, value = """
 			SELECT

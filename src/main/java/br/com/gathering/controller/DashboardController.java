@@ -13,8 +13,8 @@ import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
 import br.com.gathering.dto.response.GatheringWalletResponseDTO;
+import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.projection.RankProjection;
-import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 import br.com.gathering.service.DashboardService;
 import br.com.gathering.util.LogHelper;
 import br.com.gathering.util.RouteHelper;
@@ -60,9 +60,9 @@ public class DashboardController {
     }
 
     @GetMapping("/transaction/{idGathering}")
-    public List<PlayerTransactionProjection> getPlayerTransaciton(@PathVariable Long idGathering) {
+    public List<TransactionResponseDTO> getPlayerTransactions(@PathVariable Long idGathering) {
         LogHelper.info(log, RouteHelper.GET(PATH + "/transaction/{idGathering}"), "idGathering", idGathering);
-        return service.getPlayerTransaciton(idGathering);
+        return service.getTransactions(idGathering);
     }
 
     @GetMapping("/wallet/{idGathering}")

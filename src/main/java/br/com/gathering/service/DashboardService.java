@@ -17,6 +17,8 @@ import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
 import br.com.gathering.dto.response.GatheringWalletResponseDTO;
 import br.com.gathering.dto.response.PlayerResponseDTO;
+import br.com.gathering.dto.response.TransactionResponseDTO;
+import br.com.gathering.dto.response.TransactionTypeResponseDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
@@ -79,11 +81,32 @@ public class DashboardService {
     			.build();
     }
 
-    public List<PlayerTransactionProjection> getPlayerTransaciton(Long idGathering) {
+    public List<TransactionResponseDTO> getTransactions(Long idGathering) {
         LogHelper.info(log, "Fetching player transactions", "idGathering", idGathering);
-        List<PlayerTransactionProjection> list = repository.getPlayerTransaciton(idGathering);
+        List<PlayerTransactionProjection> list = repository.getTransactions(idGathering);
         LogHelper.info(log, "Fetched player transactions", "count", list.size());
-        return list;
+        return list.stream()
+        		.map(this::buildTransactionResponse)
+        		.toList();
+    }
+
+    private TransactionResponseDTO buildTransactionResponse(PlayerTransactionProjection item) {
+    	return TransactionResponseDTO.builder()
+    			.id(item.getIdTransaction())
+    			.amount(item.getAmount())
+    			.createdAt(item.getCreatedAt())
+    			.player(
+					PlayerResponseDTO.builder()
+						.id(item.getIdPlayer())
+    					.name(item.getPlayerName())
+    					.build())
+    			.type(
+					TransactionTypeResponseDTO.builder()
+    					.id(item.getIdTransactionType())
+    					.name(item.getTransactionTypeName())
+    					.description(item.getTransactionDescription())
+    					.build())
+    			.build();
     }
 
     public List<GatheringFormatResponseDTO> getGatheringFormats(Long idGathering) {
