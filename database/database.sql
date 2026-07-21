@@ -506,6 +506,7 @@ CREATE OR REPLACE VIEW gathering.vw_gathering_player_transaction AS
         p.name AS player_name,
         t.id AS id_transaction,
         t.created_at,
+        tt.id AS id_transaction_type,
         tt.name AS transaction_type_name,
         t.amount,
         t.description AS transaction_description
