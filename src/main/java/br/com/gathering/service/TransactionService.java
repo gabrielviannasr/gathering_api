@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.constant.TransactionType;
+import br.com.gathering.dto.response.PlayerResponseDTO;
+import br.com.gathering.dto.response.TransactionResponseDTO;
+import br.com.gathering.dto.response.TransactionTypeResponseDTO;
 import br.com.gathering.entity.Transaction;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.repository.GatheringRepository;
@@ -46,9 +49,29 @@ public class TransactionService extends AbstractService<Transaction> {
 		return result;
 	}
 
-	public Page<Transaction> getPage(Transaction model, Sort sort, int page, int size) {
-		return repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+	public Page<TransactionResponseDTO> getPage(Transaction model, Sort sort, int page, int size) {
+		Page<Transaction> list = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+		return list.map(this::buildTransactionResponse);
 	}
+
+    private TransactionResponseDTO buildTransactionResponse(Transaction item) {
+    	return TransactionResponseDTO.builder()
+    			.id(item.getId())
+    			.amount(item.getAmount())
+    			.createdAt(item.getCreatedAt())
+    			.player(
+					PlayerResponseDTO.builder()
+					.id(item.getIdPlayer())
+					.name(item.getPlayerName())
+    					.build())
+    			.type(
+					TransactionTypeResponseDTO.builder()
+    					.id(item.getTransactionType().getId())
+    					.name(item.getTransactionType().getName())
+    					.description(item.getTransactionType().getDescription())
+    					.build())
+    			.build();
+    }
 
 	public Transaction getById(Long id) {
 		LogHelper.info(log, "Fetching by ID", "id", id);

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.gathering.dto.request.TransactionDTO;
+import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.entity.Transaction;
 import br.com.gathering.service.TransactionService;
 import br.com.gathering.util.LogHelper;
@@ -40,7 +41,7 @@ public class TransactionController {
 	}
 
 	@GetMapping("/page")
-	public Page<Transaction> getPage(Transaction model,
+	public Page<TransactionResponseDTO> getPage(Transaction model,
 			@SortDefault.SortDefaults({ @SortDefault(sort = "idPlayer"), @SortDefault(sort = "idGathering"), @SortDefault(sort = "idTransactionType"), @SortDefault(sort = "createdAt") }) Sort sort,
 			@RequestParam int page,
 			@RequestParam int size) {
