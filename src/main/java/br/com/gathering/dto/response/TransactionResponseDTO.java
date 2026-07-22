@@ -15,5 +15,6 @@ public class TransactionResponseDTO {
 	private String description;
 	private TransactionTypeResponseDTO type;
 	private PlayerResponseDTO player;
+	private EventResponseDTO event;
 
 }

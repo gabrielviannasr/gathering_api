@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.constant.TransactionType;
+import br.com.gathering.dto.response.EventResponseDTO;
+import br.com.gathering.dto.response.FormatResponseDTO;
 import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.dto.response.TransactionTypeResponseDTO;
@@ -60,16 +62,26 @@ public class TransactionService extends AbstractService<Transaction> {
     			.amount(item.getAmount())
     			.createdAt(item.getCreatedAt())
     			.description(item.getTransactionType().getDescription())
+    			.type(
+					TransactionTypeResponseDTO.builder()
+					.id(item.getTransactionType().getId())
+					.name(item.getTransactionType().getName())
+					.build())
     			.player(
 					PlayerResponseDTO.builder()
 					.id(item.getIdPlayer())
 					.name(item.getPlayerName())
     					.build())
-    			.type(
-					TransactionTypeResponseDTO.builder()
-    					.id(item.getTransactionType().getId())
-    					.name(item.getTransactionType().getName())
-    					.build())
+    			.event(
+					item.getEvent() == null ? null :
+    				EventResponseDTO.builder()
+    				.id(item.getEvent().getId())
+    				.createdAt(item.getEvent().getCreatedAt())
+    				.format(FormatResponseDTO.builder()
+						.id(item.getEvent().getFormat().getId())
+						.name(item.getEvent().getFormat().getName())
+						.build())
+    				.build())    				
     			.build();
     }
 
