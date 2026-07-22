@@ -12,6 +12,7 @@ public class TransactionResponseDTO {
 	private Long id;
 	private Double amount;
 	private LocalDateTime createdAt;
+	private String description;
 	private TransactionTypeResponseDTO type;
 	private PlayerResponseDTO player;
 

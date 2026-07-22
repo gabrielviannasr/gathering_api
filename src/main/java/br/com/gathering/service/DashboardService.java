@@ -95,6 +95,7 @@ public class DashboardService {
     			.id(item.getIdTransaction())
     			.amount(item.getAmount())
     			.createdAt(item.getCreatedAt())
+    			.description(item.getTransactionDescription())
     			.player(
 					PlayerResponseDTO.builder()
 						.id(item.getIdPlayer())
@@ -104,7 +105,6 @@ public class DashboardService {
 					TransactionTypeResponseDTO.builder()
     					.id(item.getIdTransactionType())
     					.name(item.getTransactionTypeName())
-    					.description(item.getTransactionDescription())
     					.build())
     			.build();
     }
