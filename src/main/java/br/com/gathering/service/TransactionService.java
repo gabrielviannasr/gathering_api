@@ -61,11 +61,12 @@ public class TransactionService extends AbstractService<Transaction> {
     			.id(item.getId())
     			.amount(item.getAmount())
     			.createdAt(item.getCreatedAt())
-    			.description(item.getTransactionType().getDescription())
+    			.description(item.getDescription())
     			.type(
 					TransactionTypeResponseDTO.builder()
 					.id(item.getTransactionType().getId())
 					.name(item.getTransactionType().getName())
+					.description(item.getTransactionType().getDescription())
 					.build())
     			.player(
 					PlayerResponseDTO.builder()
