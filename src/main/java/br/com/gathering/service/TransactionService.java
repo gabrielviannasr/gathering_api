@@ -64,15 +64,15 @@ public class TransactionService extends AbstractService<Transaction> {
     			.description(item.getDescription())
     			.type(
 					TransactionTypeResponseDTO.builder()
-					.id(item.getType().getId())
-					.name(item.getType().getName())
-					.description(item.getType().getDescription())
-					.build())
+						.id(item.getType().getId())
+						.name(item.getType().getName())
+						.description(item.getType().getDescription())
+						.build())
     			.player(
 					PlayerResponseDTO.builder()
-					.id(item.getIdPlayer())
-					.name(item.getPlayerName())
-    					.build())
+						.id(item.getPlayer().getId())
+						.name(item.getPlayer().getName())
+	    				.build())
     			.event(
 					item.getEvent() == null ? null :
     				EventResponseDTO.builder()

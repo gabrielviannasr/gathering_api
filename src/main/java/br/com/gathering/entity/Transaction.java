@@ -78,16 +78,6 @@ public class Transaction {
 	@Column(length = DESCRIPTION_LENGTH)
 	private String description;
 
-	@Transient
-	public String getGatheringName() {
-		return this.gathering.getName();
-	}
-
-	@Transient
-	public String getPlayerName() {
-		return this.player.getName();
-	}
-
 	public void init() {
 		this.createdAt = (this.createdAt == null) ? LocalDateTime.now() : this.createdAt;
 		this.amount = (this.amount == null) ? 0 : this.amount;
