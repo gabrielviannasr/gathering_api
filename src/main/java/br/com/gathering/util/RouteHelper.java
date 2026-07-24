@@ -22,4 +22,8 @@ public class RouteHelper {
 
 	public static String PUT(String path) { return PUT(path, ""); }
 
+	public static String DELETE(String path, String suffix) { return route("DELETE", path, suffix); }
+
+	public static String DELETE(String path) { return DELETE(path, ""); }
+
 }

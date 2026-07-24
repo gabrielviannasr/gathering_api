@@ -137,6 +137,17 @@ public class TransactionService extends AbstractService<Transaction> {
 	    return saved;
 	}
 
+	public void delete(Long id) {
+
+	    Transaction current = repository.findById(id)
+	            .orElseThrow(() ->
+	                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+
+	    LogHelper.info(log, "Removing", "id", id);
+
+	    repository.delete(current);
+	}
+
 	@SuppressWarnings("incomplete-switch")
 	private void validate(Transaction model) {
 
