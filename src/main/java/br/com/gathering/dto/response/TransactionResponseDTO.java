@@ -16,5 +16,6 @@ public class TransactionResponseDTO {
 	private TransactionTypeResponseDTO type;
 	private PlayerResponseDTO player;
 	private EventResponseDTO event;
+	private GatheringResponseDTO gathering;
 
 }

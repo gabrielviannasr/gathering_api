@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.gathering.constant.TransactionType;
 import br.com.gathering.dto.response.EventResponseDTO;
 import br.com.gathering.dto.response.FormatResponseDTO;
+import br.com.gathering.dto.response.GatheringResponseDTO;
 import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.dto.response.TransactionTypeResponseDTO;
@@ -81,7 +82,12 @@ public class TransactionService extends AbstractService<Transaction> {
 						.id(item.getEvent().getFormat().getId())
 						.name(item.getEvent().getFormat().getName())
 						.build())
-    				.build())    				
+    				.build())
+    			.gathering(GatheringResponseDTO.builder()
+    					.id(item.getGathering().getId())
+    					.name(item.getGathering().getName())
+    					.year(item.getGathering().getYear())
+    					.build())
     			.build();
     }
 

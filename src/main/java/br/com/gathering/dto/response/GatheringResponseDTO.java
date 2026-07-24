@@ -8,7 +8,7 @@ import lombok.Getter;
 public class GatheringResponseDTO {
 
 	private Long id;
-	private Integer year;
     private String name;
+	private Integer year;
 
 }
