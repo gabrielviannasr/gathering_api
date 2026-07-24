@@ -67,7 +67,7 @@ public class TransactionController {
 		Transaction model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.save(model);
+		return service.update(model);
 	}
 
 }

@@ -1,6 +1,7 @@
 package br.com.gathering.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,8 @@ import br.com.gathering.projection.gathering.PlayerWalletProjection;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>{
+
+	Optional<Transaction> findById(Long id);
 
     void deleteByIdEvent(Long idEvent);
     

@@ -111,7 +111,31 @@ public class TransactionService extends AbstractService<Transaction> {
 		Transaction saved = repository.save(model);
 		LogHelper.info(log, "Saved", "id", saved.getId());
 		return saved;
-}	
+	}
+
+	public Transaction update(Transaction model) {
+
+	    Transaction current = repository.findById(model.getId())
+	            .orElseThrow(() -> new ResponseStatusException(
+	                    HttpStatus.NOT_FOUND, "Transaction not found"));
+
+		 // Apenas campos editáveis.
+		 // Gathering, Player e Event definem o contexto da transação e não podem ser alterados.
+		 // Caso seja necessário mudar algum desses vínculos, a transação deve ser excluída e recriada.
+		 current.setAmount(model.getAmount());
+		 current.setDescription(model.getDescription());
+		 current.setIdTransactionType(model.getIdTransactionType());
+
+	    validate(current);
+
+	    LogHelper.info(log, "Updating", "payload", current);
+
+	    Transaction saved = repository.save(current);
+
+	    LogHelper.info(log, "Saved", "id", saved.getId());
+
+	    return saved;
+	}
 
 	@SuppressWarnings("incomplete-switch")
 	private void validate(Transaction model) {
