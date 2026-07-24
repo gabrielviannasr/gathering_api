@@ -67,7 +67,7 @@ public class Transaction {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@ManyToOne
 	@JoinColumn(name = "id_transaction_type", nullable = true, insertable = false, updatable = false)
-	private TransactionType transactionType;
+	private TransactionType type;
 
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;

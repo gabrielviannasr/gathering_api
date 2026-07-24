@@ -35,7 +35,7 @@ public class TransactionController {
 	private TransactionService service;
 
 	@GetMapping
-	public List<Transaction> getList(Transaction model) {
+	public List<TransactionResponseDTO> getList(Transaction model) {
 		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
 		return service.getList(model);
 	}
@@ -50,7 +50,7 @@ public class TransactionController {
 	}
 
 	@GetMapping("/{id}")
-	public Transaction getById(@PathVariable Long id) {
+	public TransactionResponseDTO getById(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/{id}"), "id", id);
 		return service.getById(id);
 	}

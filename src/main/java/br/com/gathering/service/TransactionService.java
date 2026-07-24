@@ -2,7 +2,6 @@ package br.com.gathering.service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +44,10 @@ public class TransactionService extends AbstractService<Transaction> {
 		return Sort.by(Order.asc("idGathering"), Order.asc("idPlayer"), Order.asc("createdAt"));
 	}
 
-	public List<Transaction> getList(Transaction model) {
+	public List<TransactionResponseDTO> getList(Transaction model) {
 		List<Transaction> result = repository.findAll(getExample(model), getSort());
 		LogHelper.info(log, "Fetched list", "count", result.size());
-		return result;
+		return result.stream().map(this::buildTransactionResponse).toList();
 	}
 
 	public Page<TransactionResponseDTO> getPage(Transaction model, Sort sort, int page, int size) {
@@ -64,9 +63,9 @@ public class TransactionService extends AbstractService<Transaction> {
     			.description(item.getDescription())
     			.type(
 					TransactionTypeResponseDTO.builder()
-					.id(item.getTransactionType().getId())
-					.name(item.getTransactionType().getName())
-					.description(item.getTransactionType().getDescription())
+					.id(item.getType().getId())
+					.name(item.getType().getName())
+					.description(item.getType().getDescription())
 					.build())
     			.player(
 					PlayerResponseDTO.builder()
@@ -86,16 +85,17 @@ public class TransactionService extends AbstractService<Transaction> {
     			.build();
     }
 
-	public Transaction getById(Long id) {
+	public TransactionResponseDTO getById(Long id) {
 		LogHelper.info(log, "Fetching by ID", "id", id);
-		Optional<Transaction> optional = repository.findById(id);
-		if (optional.isEmpty()) {
-			LogHelper.warn(log, "Not found", "id", id);
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		Transaction event = optional.get();
-		LogHelper.info(log, "Found", "id", event.getId());
-		return event;
+		Transaction model = repository.findById(id)
+		    .orElseThrow(() -> {
+		        LogHelper.warn(log, "Not found", "id", id);
+		        return new ResponseStatusException(HttpStatus.NOT_FOUND);
+		    });
+
+		LogHelper.info(log, "Found", "id", model.getId());
+
+		return buildTransactionResponse(model);
 	}
 
 	public Transaction save(Transaction model) {
