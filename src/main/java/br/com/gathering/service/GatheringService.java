@@ -43,15 +43,19 @@ public class GatheringService extends AbstractService<Gathering> {
 	}
 
 	public Gathering getById(Long id) {
-		LogHelper.info(log, "Fetching by ID", "id", id);
-        Optional<Gathering> optional = repository.findById(id);
-        if (optional.isEmpty()) {
-            LogHelper.warn(log, "Not found", "id", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        Gathering event = optional.get();
-        LogHelper.info(log, "Found", "id", event.getId());
-        return event;
+	    LogHelper.info(log, "Fetching by ID", "id", id);
+
+	    Gathering gathering = repository.findById(id)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, "Gathering not found", "id", id);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND,
+	                        "Gathering not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", gathering.getId());
+
+	    return gathering;
 	}
 
 	public Gathering save(Gathering model) {
@@ -61,6 +65,14 @@ public class GatheringService extends AbstractService<Gathering> {
 		Gathering saved = repository.save(model);
         LogHelper.info(log, "Saved", "id", saved.getId());
         return saved;
+	}
+
+	public Gathering update(Gathering gathering) {
+	    Gathering current = getById(gathering.getId());
+
+	    current.setName(gathering.getName());
+
+	    return repository.save(current);
 	}
 
 	public List<Integer> getYears() {

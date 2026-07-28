@@ -66,7 +66,7 @@ public class GatheringController {
 		Gathering model = dto.toModel();
 		model.setId(id);
 		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.save(model);
+		return service.update(model);
 	}
 	@GetMapping("/year")
 	public List<Integer> getYears() {
