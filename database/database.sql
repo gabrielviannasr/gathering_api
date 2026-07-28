@@ -27,11 +27,8 @@ Detalhes pessoais e financeiros são tratados em entidades relacionadas.';
 -- 🏆 Tabela principal de confras
 CREATE TABLE gathering.gathering (
     id INT DEFAULT nextval('gathering.sequence_gathering'::regclass) PRIMARY KEY,
-	id_player INT NOT NULL, -- createdBy and the person in charge of the event
 	year INT DEFAULT EXTRACT(YEAR FROM CURRENT_DATE),
-    name VARCHAR(20),
-
-	CONSTRAINT fk_gathering_player FOREIGN KEY (id_player) REFERENCES gathering.player(id)
+    name VARCHAR(20)
 );
 
 COMMENT ON TABLE gathering.gathering IS

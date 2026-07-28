@@ -10,8 +10,8 @@ INSERT INTO gathering.player
 (8, 'Valmir Vicente');
 
 INSERT INTO gathering.gathering
-(id, id_player, name, year) VALUES
-(1, 1, 'DIRETORIA', 2025);
+(id, name, year) VALUES
+(1, 'DIRETORIA', 2025);
 
 INSERT INTO gathering.event
 (id, id_gathering, id_format, confra_fee, round_fee) VALUES
