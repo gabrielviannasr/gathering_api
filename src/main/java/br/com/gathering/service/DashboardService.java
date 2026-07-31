@@ -15,6 +15,7 @@ import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
+import br.com.gathering.dto.response.GatheringSummaryResponseDTO.GatheringSummaryResponseDTOBuilder;
 import br.com.gathering.dto.response.GatheringWalletResponseDTO;
 import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
@@ -244,27 +245,39 @@ public class DashboardService {
 
     public GatheringSummaryResponseDTO getSummaryProjection(Long idGathering) {
         LogHelper.info(log, "Fetching summary", "idGathering", idGathering);
+        
+        Gathering gathering = gatheringRepository.findById(idGathering)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confra não encontrada"));
+        
         GatheringSummaryProjection summary = repository.getSummaryProjection(idGathering);
+
+       GatheringSummaryResponseDTOBuilder builder = GatheringSummaryResponseDTO.builder()
+	    .idGathering(idGathering)
+	    .gathering(
+	        GatheringResponseDTO.builder()
+	            .id(gathering.getId())
+	            .name(gathering.getName())
+	            .year(gathering.getYear())
+	            .build()
+	    );
+        
         if (summary == null) {
-            LogHelper.warn(log, "No summary found for gathering", "idGathering", idGathering);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resumo da confra não encontrado");
+        	LogHelper.info(log, "Summary not found. Returning empty summary", "idGathering", idGathering);
+
+            return builder
+        	    .events(0)
+        	    .players(0)
+        	    .rounds(0)
+        	    .loserPot(0.0)
+        	    .confraPot(0.0)
+        	    .prize(0.0)                	
+        		.build();
+
         } else {
             LogHelper.info(log, "Fetched summary successfully", "idGathering", idGathering);
         }
-//        return summary;
 
-        Gathering gathering = gatheringRepository.findById(idGathering)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confra não encontrada"));
-
-        return  GatheringSummaryResponseDTO.builder()
-    	    .idGathering(summary.getIdGathering())
-    	    .gathering(
-	    	    GatheringResponseDTO.builder()
-	    	        .id(gathering.getId())
-	    	        .name(gathering.getName())
-	    	        .year(gathering.getYear())
-	    	        .build()
-	    	)
+        return  builder
     	    .events(summary.getEvents())
     	    .players(summary.getPlayers())
     	    .rounds(summary.getRounds())
