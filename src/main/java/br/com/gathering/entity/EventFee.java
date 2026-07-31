@@ -31,12 +31,12 @@ public class EventFee {
 	@SequenceGenerator(name = "gathering.sequence_event_fee", sequenceName = "gathering.sequence_event_fee", allocationSize = 1)
 	private Long id;
 
-	@Column(name = "id_event", nullable = false)
-	private Long idEvent;
+//	@Column(name = "id_event", nullable = false)
+//	private Long idEvent;
 
 	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "id_event", nullable = true, insertable = false, updatable = false)
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "id_event", nullable = false)
 	private Event event;
 
 	@Column(nullable = false)
@@ -58,7 +58,7 @@ public class EventFee {
 	public String toString() {
 	    return "EventFee: {\n"
 	            + "\tid: " + this.id + ",\n"
-	            + "\tidEvent: " + this.idEvent + ",\n"
+//	            + "\tidEvent: " + this.idEvent + ",\n"
 	            + "\tplayers: " + this.players + ",\n"
 	            + "\tprizeFee: " + this.prizeFee + ",\n"
 	            + "\tloserFee: " + this.loserFee + ",\n"

@@ -66,16 +66,38 @@ public class EventService extends AbstractService<Event> {
 	}
 
 	@Transactional
-	public Event save(Event model) {	    
+	public Event create(Event model) {
+	    model.init();
+
 	    validate(model);
 
-	    LogHelper.info(log, "Saving", "payload", model);
 	    Event saved = repository.save(model);
-	    LogHelper.info(log, "Saved", "id", saved.getId());
-
-	    updateRoundsBasedOnFees(saved);
 
 	    return saved;
+	}
+
+	@Transactional
+	public Event update(Long id, Event model) {
+
+	    Event saved = getById(id);
+
+	    model.setId(id);
+	    model.setCreatedAt(saved.getCreatedAt());
+	    model.setPlayers(saved.getPlayers());
+	    model.setRounds(saved.getRounds());
+	    model.setLoserPot(saved.getLoserPot());
+	    model.setConfraPot(saved.getConfraPot());
+	    model.setPrize(saved.getPrize());
+
+	    model.init();
+
+	    validate(model);
+
+	    Event updated = repository.save(model);
+
+	    updateRoundsBasedOnFees(updated);
+
+	    return updated;
 	}
 
 	private void validate(Event model) {

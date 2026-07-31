@@ -93,6 +93,10 @@ public class Event {
 	    this.loserPot = (this.loserPot == null) ? 0.0 : this.loserPot;
 	    this.confraPot = (this.confraPot == null) ? 0.0 : this.confraPot;
 	    this.prize = (this.prize == null) ? 0.0 : this.prize;
+
+	    if (fees != null) {
+	        fees.forEach(fee -> fee.setEvent(this));
+	    }
 	}
 
 //	@Override

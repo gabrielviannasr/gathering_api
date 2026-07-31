@@ -55,26 +55,15 @@ public class EventController {
 	}
 
 	@PostMapping
-	public Event save(@RequestBody EventDTO dto) {
-		Event model = dto.toModel();
-		model.init();
-		LogHelper.info(log, RouteHelper.POST(PATH), "payload", model);
-		return service.save(model);
+	public Event create(@RequestBody EventDTO dto) {
+		LogHelper.info(log, RouteHelper.POST(PATH), "payload", dto);
+	    return service.create(dto.toModel());
 	}
 
 	@PutMapping("/{id}")
 	public Event update(@PathVariable Long id, @RequestBody EventDTO dto) {
-		Event saved = service.getById(id);
-		Event model = dto.toModel();
-		model.setId(id);
-		model.setCreatedAt(saved.getCreatedAt());
-		model.setPlayers(saved.getPlayers());
-		model.setRounds(saved.getRounds());
-		model.setLoserPot(saved.getLoserPot());
-		model.setConfraPot(saved.getConfraPot());
-		model.setPrize(saved.getPrize());
-		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.save(model);
+		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", dto);
+	    return service.update(id, dto.toModel());
 	}
 
 }

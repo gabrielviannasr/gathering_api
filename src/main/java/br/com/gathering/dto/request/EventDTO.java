@@ -3,7 +3,6 @@ package br.com.gathering.dto.request;
 import java.util.List;
 
 import br.com.gathering.entity.Event;
-import br.com.gathering.entity.EventFee;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +39,7 @@ public class EventDTO {
 //
 //    private Double prize;
     
-    private List<EventFee> fees;
+    private List<EventFeeDTO> fees;
 
     public Event toModel() {
         Event event = new Event();
@@ -55,7 +54,13 @@ public class EventDTO {
 //        event.setLoserPot(this.loserPot);
 //        event.setConfraPot(this.confraPot);
 //        event.setPrize(this.prize);
-        event.setFees(this.fees);
+        event.setFees(
+    	    fees == null
+    	        ? List.of()
+    	        : fees.stream()
+    	              .map(EventFeeDTO::toModel)
+    	              .toList()
+    	);
 
         return event;
     }
@@ -81,7 +86,7 @@ public class EventDTO {
             sb.append("[]\n");
         } else {
             sb.append("[\n");
-            for (EventFee fee : fees) {
+            for (EventFeeDTO fee : fees) {
                 sb.append("\t\t{ players: ").append(fee.getPlayers())
                   .append(", prizeFee: ").append(fee.getPrizeFee())
                   .append(", loserFee: ").append(fee.getLoserFee())
