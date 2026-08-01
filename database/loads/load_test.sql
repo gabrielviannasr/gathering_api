@@ -123,3 +123,57 @@ INSERT INTO gathering.score
 --(1, 1, 4, 3, CURRENT_TIMESTAMP, 35.5), -- Gabriel
 --(1, 1, 5, 3, CURRENT_TIMESTAMP, 5), -- Jean
 --(1, 1, 7, 4, CURRENT_TIMESTAMP, -5); -- Tobias
+
+-------------------------------------------------
+-- Synchronize sequences
+-------------------------------------------------
+
+SELECT setval(
+    'gathering.sequence_event',
+    COALESCE((SELECT MAX(id) FROM gathering.event), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_event_fee',
+    COALESCE((SELECT MAX(id) FROM gathering.event_fee), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_format',
+    COALESCE((SELECT MAX(id) FROM gathering.format), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_gathering',
+    COALESCE((SELECT MAX(id) FROM gathering.gathering), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_player',
+    COALESCE((SELECT MAX(id) FROM gathering.player), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_result',
+    COALESCE((SELECT MAX(id) FROM gathering.result), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_round',
+    COALESCE((SELECT MAX(id) FROM gathering.round), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_round_player',
+    COALESCE((SELECT MAX(id) FROM gathering.round_player), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_transaction',
+    COALESCE((SELECT MAX(id) FROM gathering.transaction), 1)
+);
+
+SELECT setval(
+    'gathering.sequence_transaction_type',
+    COALESCE((SELECT MAX(id) FROM gathering.transaction_type), 1)
+);

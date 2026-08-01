@@ -6,7 +6,6 @@ CREATE SEQUENCE gathering.sequence_gathering START 1;
 CREATE SEQUENCE gathering.sequence_player START 1;
 CREATE SEQUENCE gathering.sequence_result START 1;
 CREATE SEQUENCE gathering.sequence_round START 1;
-CREATE SEQUENCE gathering.sequence_round_player START 1;
 CREATE SEQUENCE gathering.sequence_transaction START 1;
 CREATE SEQUENCE gathering.sequence_transaction_type START 1;
 /* CREATE SEQUENCES */
