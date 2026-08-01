@@ -37,6 +37,9 @@ public class RoundService extends AbstractService<Round> {
 	@Autowired
 	private EventRepository eventRepository;
 
+	@Autowired
+	private EventService eventService;
+
 	public static Sort getSort() {
 		return Sort.by(Order.asc("createdAt"));
 	}
@@ -80,11 +83,15 @@ public class RoundService extends AbstractService<Round> {
 		return round;
 	}
 
-	public Round save(Round model) {
+	public Round create(Round model) {
 		model.init();
 		// validate(model);
 		LogHelper.info(log, "Saving", "payload", model);
+
 		Round saved = repository.save(model);
+
+		eventService.refresh(saved.getIdEvent());
+
 		LogHelper.info(log, "Saved", "id", saved.getId());
 		return saved;
 	}
@@ -120,7 +127,11 @@ public class RoundService extends AbstractService<Round> {
 	    validate(current);
 
 	    LogHelper.info(log, "Updating", "payload", current);
+
 	    Round saved = repository.save(current);
+
+	    eventService.refresh(saved.getIdEvent());
+
 	    LogHelper.info(log, "Updated", "id", saved.getId());
 
 	    return saved;

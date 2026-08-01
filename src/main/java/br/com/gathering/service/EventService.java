@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.EventFee;
+import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Round;
 import br.com.gathering.repository.EventRepository;
 import br.com.gathering.repository.RoundRepository;
@@ -95,7 +96,7 @@ public class EventService extends AbstractService<Event> {
 
 	    Event updated = repository.save(model);
 
-	    updateRoundsBasedOnFees(updated);
+	    refreshRounds(updated.getId());
 
 	    return updated;
 	}
@@ -121,7 +122,31 @@ public class EventService extends AbstractService<Event> {
 	    }
 	}
 
-	private void updateRoundsBasedOnFees(Event event) {
+	@Transactional
+	public void refresh(Long idEvent) {
+
+	    Event event = getById(idEvent);
+
+	    List<Round> rounds = roundRepository.findByIdEventAndCanceledFalse(idEvent);
+
+	    event.setRounds(rounds.size());
+
+	    event.setPlayers(
+	        (int) rounds.stream()
+	            .flatMap(round -> round.getPlayers().stream())
+	            .map(Player::getId)
+	            .distinct()
+	            .count()
+	    );
+
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    repository.save(event);
+	}
+
+	private void refreshRounds(Long idEvent) {
+		
+		Event event = getById(idEvent);
 
 	    LogHelper.info(log, "Updating rounds after fee changes", "eventId", event.getId());
 

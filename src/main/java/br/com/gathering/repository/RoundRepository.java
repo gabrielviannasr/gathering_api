@@ -15,4 +15,6 @@ public interface RoundRepository extends JpaRepository<Round, Long>{
 
 	Optional<Round> findByIdEventAndRound(Long idEvent, Integer round);
 
+	List<Round> findByIdEventAndCanceledFalse(Long idEvent);
+
 }
