@@ -16,8 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.EventFee;
-import br.com.gathering.entity.Player;
 import br.com.gathering.entity.Round;
+import br.com.gathering.projection.EventRefreshProjection;
 import br.com.gathering.repository.EventRepository;
 import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
@@ -127,17 +127,10 @@ public class EventService extends AbstractService<Event> {
 
 	    Event event = getById(idEvent);
 
-	    List<Round> rounds = roundRepository.findByIdEventAndCanceledFalse(idEvent);
+	    EventRefreshProjection stats = repository.getRefreshProjection(idEvent);
 
-	    event.setRounds(rounds.size());
-
-	    event.setPlayers(
-	        (int) rounds.stream()
-	            .flatMap(round -> round.getPlayers().stream())
-	            .map(Player::getId)
-	            .distinct()
-	            .count()
-	    );
+	    event.setPlayers(stats.getPlayers());
+	    event.setRounds(stats.getRounds());
 
 	    event.setUpdatedAt(LocalDateTime.now());
 
