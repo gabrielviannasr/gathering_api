@@ -2,7 +2,11 @@ package br.com.gathering.projection;
 
 public interface EventRefreshProjection {
 
-    Integer getPlayers();
-    Integer getRounds();
+	Integer getPlayers();
+	Integer getRounds();
+
+	Double getLoserPot();
+	Double getConfraPot();
+	Double getPrize();
 
 }

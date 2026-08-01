@@ -401,22 +401,24 @@ CREATE OR REPLACE VIEW gathering.vw_event_rank_count AS
 COMMENT ON VIEW gathering.vw_event_rank_count IS
 'Indica quantos jogadores ocupam cada posição no ranking, utilizada para a distribuição do pote dos derrotados.';
 
-CREATE OR REPLACE VIEW gathering.vw_event_summary AS
-    SELECT 
-        loser.id_gathering,
-        loser.gathering_name,
-        loser.id_event,
-        confra.players,
-        loser.rounds,
-        loser.loser_pot,
-        confra.confra_pot,
-        loser.prize
-    FROM
-        gathering.vw_event_loser_pot loser
-        INNER JOIN gathering.vw_event_confra_pot confra
-            ON confra.id_event = loser.id_event
-    ORDER BY
-	    loser.id_gathering, loser.id_event;
+CREATE OR REPLACE VIEW gathering.vw_event_loser_pot AS
+    SELECT
+        e.id_gathering,
+        g.name AS gathering_name,
+        e.id AS id_event,
+        COUNT(r.id) AS rounds,
+        COALESCE(SUM(r.loser_pot), 0) AS loser_pot,
+        COALESCE(SUM(r.prize), 0) AS prize
+    FROM gathering.event e
+    JOIN gathering.gathering g
+        ON g.id = e.id_gathering
+    LEFT JOIN gathering.round r
+        ON r.id_event = e.id
+    AND r.canceled = false
+    GROUP BY
+        e.id_gathering,
+        g.name,
+        e.id;
 
 COMMENT ON VIEW gathering.vw_event_summary IS
 'Apresenta um resumo consolidado de cada evento, unindo informações do pote da confra e do pote dos derrotados.

@@ -131,6 +131,9 @@ public class EventService extends AbstractService<Event> {
 
 	    event.setPlayers(stats.getPlayers());
 	    event.setRounds(stats.getRounds());
+	    event.setLoserPot(stats.getLoserPot());
+	    event.setConfraPot(stats.getConfraPot());
+	    event.setPrize(stats.getPrize());
 
 	    event.setUpdatedAt(LocalDateTime.now());
 

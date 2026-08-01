@@ -12,15 +12,15 @@ import br.com.gathering.projection.EventRefreshProjection;
 public interface EventRepository extends JpaRepository<Event, Long>{
 
 	@Query(nativeQuery = true, value = """
-		SELECT
-		    COUNT(DISTINCT rp.id_player) AS players,
-			COUNT(DISTINCT r.id) AS rounds
-		FROM gathering.round r
-		LEFT JOIN gathering.round_player rp
-			ON rp.id_round = r.id
-		WHERE r.id_event = :idEvent
-			AND r.canceled = false
-	""")
+		    SELECT
+		        players,
+		        rounds,
+		        loser_pot AS loserPot,
+		        confra_pot AS confraPot,
+		        prize
+		    FROM gathering.vw_event_summary
+		    WHERE id_event = :idEvent
+	    """)
 	EventRefreshProjection getRefreshProjection(@Param("idEvent") Long idEvent);
 
 }
