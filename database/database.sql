@@ -50,6 +50,9 @@ CREATE TABLE gathering.event (
 	id_gathering int4 NOT NULL,
 	id_format int4 NULL,
 
+    canceled BOOLEAN NOT NULL DEFAULT false,
+    finalized BOOLEAN NOT NULL DEFAULT false,
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     result_updated_at TIMESTAMP,
@@ -57,18 +60,20 @@ CREATE TABLE gathering.event (
     players INT NOT NULL DEFAULT 0,
     rounds INT NOT NULL DEFAULT 0,
 
-    confra_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (confra_fee >= 0),
-    round_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (round_fee >= 0),
+    confra_fee NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (confra_fee >= 0),
+    round_fee NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (round_fee >= 0),
 
-    loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0),
-    confra_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (confra_pot >= 0),
-    prize NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize >= 0),
+    loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (loser_pot >= 0),
+    confra_pot NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (confra_pot >= 0),
+    prize NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (prize >= 0),
 
-	CONSTRAINT event_confra_fee_check CHECK ((confra_fee >= (0)::numeric)),
-	CONSTRAINT event_confra_pot_check CHECK ((confra_pot >= (0)::numeric)),
-	CONSTRAINT event_loser_pot_check CHECK ((loser_pot >= (0)::numeric)),
-    CONSTRAINT event_prize_check CHECK ((prize >= (0)::numeric)),
-	CONSTRAINT event_round_fee_check CHECK ((round_fee >= (0)::numeric)),
+    CONSTRAINT event_state_check CHECK (NOT (canceled AND finalized)),
+
+	CONSTRAINT event_confra_fee_check CHECK (confra_fee >= 0),
+	CONSTRAINT event_confra_pot_check CHECK (confra_pot >= 0),
+	CONSTRAINT event_loser_pot_check CHECK (loser_pot >= 0),
+    CONSTRAINT event_prize_check CHECK (prize >= 0),
+	CONSTRAINT event_round_fee_check CHECK (round_fee >= 0),
 
 	CONSTRAINT fk_event_format FOREIGN KEY (id_format) REFERENCES gathering."format"(id),
 	CONSTRAINT fk_event_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id)
@@ -84,9 +89,15 @@ COMMENT ON COLUMN gathering.event.id_gathering IS 'Identificador da confra à qu
 
 COMMENT ON COLUMN gathering.event.id_format IS 'Formato de jogo associado ao evento.';
 
+COMMENT ON COLUMN gathering.event.canceled IS
+'Um evento cancelado não pode ser finalizado e todas as suas rodadas devem ser consideradas canceladas.';
+
+COMMENT ON COLUMN gathering.event.finalized IS
+'Após a finalização, não são permitidas alterações nas rodadas ou nas configurações do evento.';
+
 COMMENT ON COLUMN gathering.event.created_at IS 'Data e hora de criação do evento.';
 
-COMMENT ON COLUMN gathering.event.updated_at IS 'Data e hora da última alteração que impacta o resultado do evento.';
+COMMENT ON COLUMN gathering.event.updated_at IS 'Data e hora da última atualização do evento.';
 
 COMMENT ON COLUMN gathering.event.result_updated_at IS 'Data e hora da última atualização dos resultados persistidos do evento.';
 
