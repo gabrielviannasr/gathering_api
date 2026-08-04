@@ -62,8 +62,20 @@ public class EventController {
 
 	@PutMapping("/{id}")
 	public Event update(@PathVariable Long id, @RequestBody EventDTO dto) {
-		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", dto);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "payload", dto);
 	    return service.update(id, dto.toModel());
+	}
+
+	@PostMapping("/{id}/finalize")
+	public Event finalize(@PathVariable Long id) {
+		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/finalize"), "id", id);
+	    return service.finalize(id);
+	}
+
+	@PostMapping("/{id}/reopen")
+	public Event reopen(@PathVariable Long id) {
+		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reopen"), "id", id);
+	    return service.reopen(id);
 	}
 
 }

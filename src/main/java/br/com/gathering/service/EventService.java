@@ -135,7 +135,7 @@ public class EventService extends AbstractService<Event> {
 	    event.setConfraPot(stats.getConfraPot());
 	    event.setPrize(stats.getPrize());
 
-	    event.setUpdatedAt(LocalDateTime.now());
+//	    event.setUpdatedAt(LocalDateTime.now());
 
 	    repository.save(event);
 	}
@@ -223,5 +223,109 @@ public class EventService extends AbstractService<Event> {
 	    Event event = getById(idEvent);
 	    event.setUpdatedAt(LocalDateTime.now());
 	    repository.save(event);
+	}
+	
+	@Transactional
+	public Event finalize(Long id) {
+
+	    refresh(id);
+
+	    Event event = getById(id);
+
+	    validateFinalize(event);
+
+	    // TODO deleteTransactions(id);
+	    // TODO createTransactions(id);
+
+	    LocalDateTime now = LocalDateTime.now();
+	    event.setFinalized(true);
+	    event.setUpdatedAt(now);
+	    event.setResultUpdatedAt(now);
+
+	    return repository.save(event);
+	}
+
+	@Transactional
+	public Event reopen(Long id) {
+
+	    Event event = getById(id);
+
+	    validateReopen(event);
+
+	    // TODO deleteTransactions(id);
+
+	    event.setFinalized(false);
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    return repository.save(event);
+	}
+
+	private void validateFinalize(Event event) {
+
+	    if (event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos cancelados não podem ser finalizados."
+	        );
+	    }
+
+	    if (event.getFinalized()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Evento já está finalizado."
+	        );
+	    }
+
+	    List<Round> rounds = roundRepository.findByIdEventAndCanceledFalse(event.getId());
+
+	    if (rounds.isEmpty()) {
+	    	throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "O evento deve possuir pelo menos uma rodada ativa."
+	        );
+	    }
+
+	    rounds.forEach(this::validateFinalizeRound);
+
+	}
+
+	private void validateFinalizeRound(Round round) {
+
+	    if (round.getPlayersTotal() < 2) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            String.format(
+	                "Rodada %d deve possuir pelo menos dois jogadores.",
+	                round.getRound()
+	            )
+	        );
+	    }
+
+	    if (round.getIdPlayerWinner() == null) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            String.format(
+	                "Rodada %d deve possuir um vencedor.",
+	                round.getRound()
+	            )
+	        );
+	    }
+	}
+
+	private void validateReopen(Event event) {
+
+	    if (event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos cancelados não podem ser reabertos."
+	        );
+	    }
+
+	    if (!event.getFinalized()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Evento já está aberto."
+	        );
+	    }
 	}
 }

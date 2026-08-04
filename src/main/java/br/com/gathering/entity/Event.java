@@ -48,6 +48,12 @@ public class Event {
 	@JoinColumn(name = "id_format", nullable = true, insertable = false, updatable = false)
 	private Format format;
 
+	@Column(name = "canceled", nullable = false)
+	private Boolean canceled;
+
+	@Column(name = "finalized", nullable = false)
+	private Boolean finalized;
+
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
 	
@@ -84,6 +90,8 @@ public class Event {
 	public void init() {
 		LocalDateTime now = LocalDateTime.now();
 
+		this.canceled = (this.canceled == null) ? false : this.canceled;
+		this.finalized = (this.finalized == null) ? false : this.finalized;
 		this.createdAt = (this.createdAt == null) ? now : this.createdAt;
 		this.updatedAt = (this.updatedAt == null) ? now : this.updatedAt;
 	    this.players = (this.players == null) ? 0 : this.players;
