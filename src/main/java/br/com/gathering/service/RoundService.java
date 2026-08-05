@@ -84,6 +84,10 @@ public class RoundService extends AbstractService<Round> {
 	}
 
 	public Round create(Round model) {
+		Event event = eventService.getById(model.getIdEvent());
+
+		eventService.validateEditable(event);
+		
 		model.init();
 		// validate(model);
 		LogHelper.info(log, "Saving", "payload", model);
@@ -97,6 +101,10 @@ public class RoundService extends AbstractService<Round> {
 	}
 	
 	public Round update(Round model) {
+
+		Event event = eventService.getById(model.getIdEvent());
+
+		eventService.validateEditable(event);
 
 		Round current = repository
 			    .findByIdEventAndRound(model.getIdEvent(), model.getRound())

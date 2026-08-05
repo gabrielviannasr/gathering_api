@@ -82,6 +82,8 @@ public class EventService extends AbstractService<Event> {
 
 	    Event saved = getById(id);
 
+	    validateEditable(saved);
+
 	    model.setId(id);
 	    model.setCreatedAt(saved.getCreatedAt());
 	    model.setPlayers(saved.getPlayers());
@@ -325,6 +327,23 @@ public class EventService extends AbstractService<Event> {
 	        throw new ResponseStatusException(
 	            HttpStatus.BAD_REQUEST,
 	            "Evento já está aberto."
+	        );
+	    }
+	}
+
+	public void validateEditable(Event event) {
+
+	    if (event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos cancelados não podem ser alterados."
+	        );
+	    }
+
+	    if (event.getFinalized()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos finalizados não podem ser alterados."
 	        );
 	    }
 	}
