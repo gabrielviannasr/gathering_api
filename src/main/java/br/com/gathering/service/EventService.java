@@ -242,7 +242,7 @@ public class EventService extends AbstractService<Event> {
 	    LocalDateTime now = LocalDateTime.now();
 	    event.setFinalized(true);
 	    event.setUpdatedAt(now);
-	    event.setResultUpdatedAt(now);
+	    event.setResultsAt(now);
 
 	    return repository.save(event);
 	}

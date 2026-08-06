@@ -141,8 +141,8 @@ public class ResultService extends AbstractService<Result> {
 	}
 	
 	private boolean needsRefresh(Event event) {
-	    return event.getResultUpdatedAt() == null
-	        || event.getUpdatedAt().isAfter(event.getResultUpdatedAt());
+	    return event.getResultsAt() == null
+	        || event.getUpdatedAt().isAfter(event.getResultsAt());
 	}
 
 	public void refreshResult(Event event) {
@@ -186,7 +186,7 @@ public class ResultService extends AbstractService<Result> {
 
 	    saveTransactions(event, results);
 
-	    event.setResultUpdatedAt(LocalDateTime.now());
+	    event.setResultsAt(LocalDateTime.now());
 
 	    eventRepository.save(event);
 	}

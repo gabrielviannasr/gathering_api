@@ -2,12 +2,12 @@ ALTER TABLE gathering.event
 ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 ALTER TABLE gathering.event
-ADD COLUMN result_updated_at TIMESTAMP;
+ADD COLUMN results_at TIMESTAMP;
 
 COMMENT ON COLUMN gathering.event.updated_at IS
 'Data e hora da última alteração que impacta o cálculo do resultado do evento.';
 
-COMMENT ON COLUMN gathering.event.result_updated_at IS
+COMMENT ON COLUMN gathering.event.results_at IS
 'Data e hora da última geração do ranking/resultados persistidos do evento.';
 
 COMMENT ON COLUMN gathering.event.created_at IS

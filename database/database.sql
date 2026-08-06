@@ -55,7 +55,7 @@ CREATE TABLE gathering.event (
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    result_updated_at TIMESTAMP,
+    results_at TIMESTAMP,
 
     players INT NOT NULL DEFAULT 0,
     rounds INT NOT NULL DEFAULT 0,

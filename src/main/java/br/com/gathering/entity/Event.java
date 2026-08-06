@@ -60,8 +60,8 @@ public class Event {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
-	@Column(name = "result_updated_at")
-	private LocalDateTime resultUpdatedAt;
+	@Column(name = "resultsAt")
+	private LocalDateTime resultsAt;
 
 	@Column(nullable = false)
     private Integer players;
@@ -131,7 +131,7 @@ public class Event {
         sb.append("\tidFormat: ").append(idFormat).append(",\n");
         sb.append("\tcreatedAt: ").append(createdAt).append(",\n");
         sb.append("\tupdatedAt: ").append(updatedAt).append(",\n");
-        sb.append("\tresultUpdatedAt: ").append(resultUpdatedAt).append(",\n");
+        sb.append("\tresultsAt: ").append(resultsAt).append(",\n");
         sb.append("\tplayers: ").append(players).append(",\n");
         sb.append("\trounds: ").append(rounds).append(",\n");
         sb.append("\tconfraFee: ").append(confraFee).append(",\n");
