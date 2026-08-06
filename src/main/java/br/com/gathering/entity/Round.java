@@ -57,12 +57,15 @@ public class Round {
 
 	@ManyToOne
 	@JoinColumn(name = "id_player_winner", nullable = true, insertable = false, updatable = false)
-	private Player playerWinner;	
+	private Player playerWinner;
+
+	@Column(nullable = false)
+    private Boolean canceled;
 
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
 
-   @Column(nullable = false)
+	@Column(nullable = false)
     private Integer round;
 
 	@Column(name = "players", nullable = false)
@@ -73,9 +76,6 @@ public class Round {
 
 	@Column(name = "loser_pot", nullable = false)
     private Double loserPot;
-
-	@Column(nullable = false)
-    private Boolean canceled;
 
 	@ManyToMany
 	@JoinTable(
@@ -88,11 +88,11 @@ public class Round {
 	private List<Player> players;
 
 	public void init() {
+	    this.canceled = (this.canceled == null) ? false : this.canceled;
 	    this.createdAt = (this.createdAt == null) ? LocalDateTime.now() : this.createdAt;
 	    this.playersTotal = (this.playersTotal == null) ? 0 : this.playersTotal;
 	    this.prize = (this.prize == null) ? 0 : this.prize;
 	    this.loserPot = (this.loserPot == null) ? 0 : this.loserPot;
-	    this.canceled = (this.canceled == null) ? false : this.canceled;
 	}
 
 	@Override
@@ -102,12 +102,12 @@ public class Round {
 	            + "\tidEvent: " + this.idEvent + ",\n"
 	            + "\tidFormat: " + this.idFormat + ",\n"
 	            + "\tidPlayerWinner: " + this.idPlayerWinner + ",\n"
+	            + "\tcanceled: " + this.canceled + ",\n"
 	            + "\tcreatedAt: " + this.createdAt + ",\n"
 	            + "\tround: " + this.round + ",\n"
 	            + "\tplayersTotal: " + this.playersTotal + ",\n"
 	            + "\tprize: " + this.prize + ",\n"
 	            + "\tloserPot: " + this.loserPot + ",\n"
-	            + "\tcanceled: " + this.canceled + ",\n"
 	            + "}";
 	}
 

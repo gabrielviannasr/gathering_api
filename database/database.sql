@@ -148,12 +148,15 @@ CREATE TABLE gathering.round (
     id_event INT NOT NULL,
     id_format INT NOT NULL,
     id_player_winner INT,
+    
+    canceled BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     round INT NOT NULL,
     players INT NOT NULL DEFAULT 0 CHECK (players >= 0),
     prize NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize >= 0),
     loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0),
-    canceled BOOLEAN NOT NULL DEFAULT false,
+
 
     CONSTRAINT fk_round_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
     CONSTRAINT fk_round_format FOREIGN KEY (id_format) REFERENCES gathering.format(id),
@@ -172,6 +175,8 @@ COMMENT ON COLUMN gathering.round.id_format IS 'Formato de jogo utilizado nesta 
 
 COMMENT ON COLUMN gathering.round.id_player_winner IS 'Identificador do jogador vencedor da rodada.';
 
+COMMENT ON COLUMN gathering.round.canceled IS 'Indica se a rodada foi cancelada (true) ou válida (false).';
+
 COMMENT ON COLUMN gathering.round.created_at IS 'Data e hora de criação da rodada.';
 
 COMMENT ON COLUMN gathering.round.round IS 'Número sequencial da rodada dentro do evento.';
@@ -181,8 +186,6 @@ COMMENT ON COLUMN gathering.round.players IS 'Quantidade de jogadores participan
 COMMENT ON COLUMN gathering.round.prize IS 'Valor total de premiação entregue nesta rodada.';
 
 COMMENT ON COLUMN gathering.round.loser_pot IS 'Valor total destinado ao pote dos derrotados nesta rodada.';
-
-COMMENT ON COLUMN gathering.round.canceled IS 'Indica se a rodada foi cancelada (true) ou válida (false).';
 
 -- 🧮 Tabela de placar por rodada (Round_Player)
 CREATE TABLE gathering.round_player (
