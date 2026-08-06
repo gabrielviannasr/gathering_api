@@ -78,4 +78,16 @@ public class EventController {
 	    return service.reopen(id);
 	}
 
+	@PostMapping("/{id}/cancel")
+	public Event cancel(@PathVariable Long id) {
+		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/cancel"), "id", id);
+	    return service.cancel(id);
+	}
+
+	@PostMapping("/{id}/reactivate")
+	public Event reactivate(@PathVariable Long id) {
+		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reactivate"), "id", id);
+	    return service.reactivate(id);
+	}
+
 }

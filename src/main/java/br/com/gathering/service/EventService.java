@@ -347,4 +347,65 @@ public class EventService extends AbstractService<Event> {
 	        );
 	    }
 	}
+
+	@Transactional
+	public Event cancel(Long id) {
+
+	    Event event = getById(id);
+
+	    validateCancel(event);
+
+	    // TODO deleteTransactions(id);
+
+	    roundRepository.cancelByIdEvent(id);
+
+	    refresh(id);
+
+	    event = getById(id);
+
+	    event.setCanceled(true);
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    return repository.save(event);
+	}
+
+	@Transactional
+	public Event reactivate(Long id) {
+
+	    Event event = getById(id);
+
+	    validateReactivate(event);
+
+	    event.setCanceled(false);
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    return repository.save(event);
+	}
+
+	public void validateCancel(Event event) {
+
+	    if (event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Evento já está cancelado."
+	        );
+	    }
+
+	    if (event.getFinalized()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos finalizados não podem ser cancelados."
+	        );
+	    }
+	}
+
+	public void validateReactivate(Event event) {
+
+	    if (!event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Evento já está ativo."
+	        );
+	    }
+	}
 }
