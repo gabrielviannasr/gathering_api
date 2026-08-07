@@ -85,12 +85,17 @@ public class EventService extends AbstractService<Event> {
 	    validateEditable(saved);
 
 	    model.setId(id);
+	    model.setCanceled(saved.getCanceled());
+	    model.setFinalized(saved.getFinalized());
 	    model.setCreatedAt(saved.getCreatedAt());
+	    model.setUpdatedAt(saved.getUpdatedAt());
+	    model.setResultsAt(saved.getResultsAt());
 	    model.setPlayers(saved.getPlayers());
 	    model.setRounds(saved.getRounds());
 	    model.setLoserPot(saved.getLoserPot());
 	    model.setConfraPot(saved.getConfraPot());
 	    model.setPrize(saved.getPrize());
+	    
 
 	    model.init();
 
