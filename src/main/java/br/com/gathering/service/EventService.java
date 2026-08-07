@@ -363,7 +363,9 @@ public class EventService extends AbstractService<Event> {
 
 	    event = getById(id);
 
+	    // Um evento cancelado não pode permanecer finalizado.
 	    event.setCanceled(true);
+	    event.setFinalized(false);
 	    event.setUpdatedAt(LocalDateTime.now());
 
 	    return repository.save(event);
@@ -388,13 +390,6 @@ public class EventService extends AbstractService<Event> {
 	        throw new ResponseStatusException(
 	            HttpStatus.BAD_REQUEST,
 	            "Evento já está cancelado."
-	        );
-	    }
-
-	    if (event.getFinalized()) {
-	        throw new ResponseStatusException(
-	            HttpStatus.BAD_REQUEST,
-	            "Eventos finalizados não podem ser cancelados."
 	        );
 	    }
 	}
