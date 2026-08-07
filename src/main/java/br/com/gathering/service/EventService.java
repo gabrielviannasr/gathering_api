@@ -14,10 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.dto.request.EventDTO;
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.EventFee;
 import br.com.gathering.entity.Round;
 import br.com.gathering.projection.EventRefreshProjection;
+import br.com.gathering.repository.EventFeeRepository;
 import br.com.gathering.repository.EventRepository;
 import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
@@ -33,6 +35,9 @@ public class EventService extends AbstractService<Event> {
 
 	@Autowired
 	private RoundRepository roundRepository;
+
+	@Autowired
+	private EventFeeRepository eventFeeRepository;
 
 	public static Sort getSort() {
 		return Sort.by(Order.asc("idGathering"), Order.asc("createdAt"));
@@ -78,32 +83,36 @@ public class EventService extends AbstractService<Event> {
 	}
 
 	@Transactional
-	public Event update(Long id, Event model) {
+	public Event update(Long id, EventDTO dto) {
 
-	    Event saved = getById(id);
+		Event current = getById(id);
 
-	    validateEditable(saved);
+	    validateEditable(current);
 
-	    model.setId(id);
-	    model.setCanceled(saved.getCanceled());
-	    model.setFinalized(saved.getFinalized());
-	    model.setCreatedAt(saved.getCreatedAt());
-	    model.setUpdatedAt(saved.getUpdatedAt());
-	    model.setResultsAt(saved.getResultsAt());
-	    model.setPlayers(saved.getPlayers());
-	    model.setRounds(saved.getRounds());
-	    model.setLoserPot(saved.getLoserPot());
-	    model.setConfraPot(saved.getConfraPot());
-	    model.setPrize(saved.getPrize());
+	    Event model = dto.toModel();
+
+	    current.setIdFormat(model.getIdFormat());
+	    current.setConfraFee(model.getConfraFee() == null ? 0.0 : model.getConfraFee());
+	    current.setRoundFee(model.getRoundFee() == null ? 0.0 : model.getRoundFee());
+	    current.setUpdatedAt(LocalDateTime.now());
+
+	    eventFeeRepository.deleteByIdEvent(id);
+	    eventFeeRepository.flush();
+
+	    current.getFees().clear();
+
+	    for (EventFee fee : model.getFees()) {
+	        fee.setIdEvent(id);
+	        current.getFees().add(fee);
+	    }    
+
+	    validate(current);
+
+	    Event updated = repository.save(current);
+
+	    refreshRounds(id);
 	    
-
-	    model.init();
-
-	    validate(model);
-
-	    Event updated = repository.save(model);
-
-	    refreshRounds(updated.getId());
+	    refresh(id);
 
 	    return updated;
 	}

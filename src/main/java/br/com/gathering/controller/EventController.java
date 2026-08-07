@@ -63,7 +63,7 @@ public class EventController {
 	@PutMapping("/{id}")
 	public Event update(@PathVariable Long id, @RequestBody EventDTO dto) {
 		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "payload", dto);
-	    return service.update(id, dto.toModel());
+	    return service.update(id, dto);
 	}
 
 	@PostMapping("/{id}/finalize")
