@@ -17,11 +17,16 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.gathering.dto.request.EventDTO;
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.EventFee;
+import br.com.gathering.entity.Result;
 import br.com.gathering.entity.Round;
+import br.com.gathering.entity.Transaction;
+import br.com.gathering.factory.TransactionFactory;
 import br.com.gathering.projection.EventRefreshProjection;
 import br.com.gathering.repository.EventFeeRepository;
 import br.com.gathering.repository.EventRepository;
+import br.com.gathering.repository.ResultRepository;
 import br.com.gathering.repository.RoundRepository;
+import br.com.gathering.repository.TransactionRepository;
 import br.com.gathering.util.LogHelper;
 import jakarta.transaction.Transactional;
 
@@ -34,10 +39,19 @@ public class EventService extends AbstractService<Event> {
 	private EventRepository repository;
 
 	@Autowired
+	private EventFeeRepository eventFeeRepository;
+
+	@Autowired
+	private ResultRepository resultRepository;
+	
+	@Autowired
 	private RoundRepository roundRepository;
 
 	@Autowired
-	private EventFeeRepository eventFeeRepository;
+	private ResultService resultService;
+
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 	public static Sort getSort() {
 		return Sort.by(Order.asc("idGathering"), Order.asc("createdAt"));
@@ -117,25 +131,100 @@ public class EventService extends AbstractService<Event> {
 	    return updated;
 	}
 
-	private void validate(Event model) {
-	    if (model.getFees() == null || model.getFees().isEmpty()) return;
+	@Transactional
+	public Event cancel(Long id) {
 
-	    for (EventFee fee : model.getFees()) {
-	        double totalArrecadado = model.getRoundFee() * fee.getPlayers();
-	        double totalDistribuido = fee.getPrizeFee() + fee.getLoserFee();
+	    Event event = getById(id);
 
-	        if (Math.abs(totalArrecadado - totalDistribuido) > 0.001) {
-	        	LogHelper.warn(log, "Invalid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
-	            throw new ResponseStatusException(
-	                HttpStatus.BAD_REQUEST,
-	                String.format(
-	                    "Distribuição inválida para %d jogadores: arrecadado = %.2f, distribuído = %.2f (diferença = %.2f)",
-	                    fee.getPlayers(), totalArrecadado, totalDistribuido, totalArrecadado - totalDistribuido
-	                )
-	            );
-	        }
-	        LogHelper.info(log, "Valid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
-	    }
+	    validateCancel(event);
+
+	    deleteTransactions(event);
+
+	    roundRepository.cancelByIdEvent(id);
+
+	    refresh(id);
+
+	    event = getById(id);
+
+	    // Um evento cancelado não pode permanecer finalizado.
+	    event.setCanceled(true);
+	    event.setFinalized(false);
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    return repository.save(event);
+	}
+
+	@Transactional
+	public Event finalize(Long id) {
+
+	    refresh(id);
+
+	    Event event = getById(id);
+
+	    validateFinalize(event);
+
+	    resultService.refreshResult(event);
+
+	    deleteTransactions(event);
+
+	    createTransactions(event);
+
+	    LocalDateTime now = LocalDateTime.now();
+	    event.setFinalized(true);
+	    event.setUpdatedAt(now);
+	    event.setResultsAt(now);
+
+	    return repository.save(event);
+	}
+
+	@Transactional
+	public Event reactivate(Long id) {
+
+	    Event event = getById(id);
+
+	    validateReactivate(event);
+
+	    event.setCanceled(false);
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    return repository.save(event);
+	}
+
+	@Transactional
+	public Event reopen(Long id) {
+
+	    Event event = getById(id);
+
+	    validateReopen(event);
+
+	    deleteTransactions(event);
+
+	    event.setFinalized(false);
+	    event.setUpdatedAt(LocalDateTime.now());
+
+	    return repository.save(event);
+	}
+
+	private void createTransactions(Event event) {
+
+	    List<Result> results = resultRepository.findByIdEvent(event.getId());
+
+	    List<Transaction> transactions = TransactionFactory.fromResults(event, results);
+
+	    transactionRepository.saveAll(transactions);
+	}
+
+	private void deleteTransactions(Event event) {
+
+	    transactionRepository.deleteByIdEvent(event.getId());
+
+	    transactionRepository.flush();
+	}
+	
+	public void markAsUpdated(Long idEvent) {
+	    Event event = getById(idEvent);
+	    event.setUpdatedAt(LocalDateTime.now());
+	    repository.save(event);
 	}
 
 	@Transactional
@@ -235,45 +324,52 @@ public class EventService extends AbstractService<Event> {
 	    }
 	}
 
-	public void markAsUpdated(Long idEvent) {
-	    Event event = getById(idEvent);
-	    event.setUpdatedAt(LocalDateTime.now());
-	    repository.save(event);
-	}
-	
-	@Transactional
-	public Event finalize(Long id) {
+	private void validate(Event model) {
+	    if (model.getFees() == null || model.getFees().isEmpty()) return;
 
-	    refresh(id);
+	    for (EventFee fee : model.getFees()) {
+	        double totalArrecadado = model.getRoundFee() * fee.getPlayers();
+	        double totalDistribuido = fee.getPrizeFee() + fee.getLoserFee();
 
-	    Event event = getById(id);
-
-	    validateFinalize(event);
-
-	    // TODO deleteTransactions(id);
-	    // TODO createTransactions(id);
-
-	    LocalDateTime now = LocalDateTime.now();
-	    event.setFinalized(true);
-	    event.setUpdatedAt(now);
-	    event.setResultsAt(now);
-
-	    return repository.save(event);
+	        if (Math.abs(totalArrecadado - totalDistribuido) > 0.001) {
+	        	LogHelper.warn(log, "Invalid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
+	            throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                String.format(
+	                    "Distribuição inválida para %d jogadores: arrecadado = %.2f, distribuído = %.2f (diferença = %.2f)",
+	                    fee.getPlayers(), totalArrecadado, totalDistribuido, totalArrecadado - totalDistribuido
+	                )
+	            );
+	        }
+	        LogHelper.info(log, "Valid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
+	    }
 	}
 
-	@Transactional
-	public Event reopen(Long id) {
+	public void validateCancel(Event event) {
 
-	    Event event = getById(id);
+	    if (event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Evento já está cancelado."
+	        );
+	    }
+	}
 
-	    validateReopen(event);
+	public void validateEditable(Event event) {
 
-	    // TODO deleteTransactions(id);
+	    if (event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos cancelados não podem ser alterados."
+	        );
+	    }
 
-	    event.setFinalized(false);
-	    event.setUpdatedAt(LocalDateTime.now());
-
-	    return repository.save(event);
+	    if (event.getFinalized()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Eventos finalizados não podem ser alterados."
+	        );
+	    }
 	}
 
 	private void validateFinalize(Event event) {
@@ -328,6 +424,16 @@ public class EventService extends AbstractService<Event> {
 	    }
 	}
 
+	public void validateReactivate(Event event) {
+
+	    if (!event.getCanceled()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.BAD_REQUEST,
+	            "Evento já está ativo."
+	        );
+	    }
+	}
+
 	private void validateReopen(Event event) {
 
 	    if (event.getCanceled()) {
@@ -345,76 +451,4 @@ public class EventService extends AbstractService<Event> {
 	    }
 	}
 
-	public void validateEditable(Event event) {
-
-	    if (event.getCanceled()) {
-	        throw new ResponseStatusException(
-	            HttpStatus.BAD_REQUEST,
-	            "Eventos cancelados não podem ser alterados."
-	        );
-	    }
-
-	    if (event.getFinalized()) {
-	        throw new ResponseStatusException(
-	            HttpStatus.BAD_REQUEST,
-	            "Eventos finalizados não podem ser alterados."
-	        );
-	    }
-	}
-
-	@Transactional
-	public Event cancel(Long id) {
-
-	    Event event = getById(id);
-
-	    validateCancel(event);
-
-	    // TODO deleteTransactions(id);
-
-	    roundRepository.cancelByIdEvent(id);
-
-	    refresh(id);
-
-	    event = getById(id);
-
-	    // Um evento cancelado não pode permanecer finalizado.
-	    event.setCanceled(true);
-	    event.setFinalized(false);
-	    event.setUpdatedAt(LocalDateTime.now());
-
-	    return repository.save(event);
-	}
-
-	@Transactional
-	public Event reactivate(Long id) {
-
-	    Event event = getById(id);
-
-	    validateReactivate(event);
-
-	    event.setCanceled(false);
-	    event.setUpdatedAt(LocalDateTime.now());
-
-	    return repository.save(event);
-	}
-
-	public void validateCancel(Event event) {
-
-	    if (event.getCanceled()) {
-	        throw new ResponseStatusException(
-	            HttpStatus.BAD_REQUEST,
-	            "Evento já está cancelado."
-	        );
-	    }
-	}
-
-	public void validateReactivate(Event event) {
-
-	    if (!event.getCanceled()) {
-	        throw new ResponseStatusException(
-	            HttpStatus.BAD_REQUEST,
-	            "Evento já está ativo."
-	        );
-	    }
-	}
 }

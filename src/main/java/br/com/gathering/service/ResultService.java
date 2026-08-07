@@ -16,8 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.gathering.calculation.ResultCalculator;
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.Result;
-import br.com.gathering.entity.Transaction;
-import br.com.gathering.factory.TransactionFactory;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.event.ConfraPotProjection;
 import br.com.gathering.projection.event.EventSummaryProjection;
@@ -25,7 +23,6 @@ import br.com.gathering.projection.event.LoserPotProjection;
 import br.com.gathering.projection.event.RankCountProjection;
 import br.com.gathering.repository.EventRepository;
 import br.com.gathering.repository.ResultRepository;
-import br.com.gathering.repository.TransactionRepository;
 import br.com.gathering.util.LogHelper;
 
 @Service
@@ -38,9 +35,6 @@ public class ResultService extends AbstractService<Result> {
 
 	@Autowired
 	private EventRepository eventRepository;
-
-	@Autowired
-	private TransactionRepository transactionRepository;
 
 	public ConfraPotProjection getConfraPot(Long idEvent) {
 		ConfraPotProjection confraPot = repository.getConfraPot(idEvent);
@@ -171,11 +165,7 @@ public class ResultService extends AbstractService<Result> {
 
 	private void deleteSnapshot(Long idEvent) {
 
-	    transactionRepository.deleteByIdEvent(idEvent);
-
 	    repository.deleteByIdEvent(idEvent);
-
-	    transactionRepository.flush();
 
 	    repository.flush();
 	}
@@ -184,18 +174,9 @@ public class ResultService extends AbstractService<Result> {
 
 	    repository.saveAll(results);
 
-	    saveTransactions(event, results);
-
 	    event.setResultsAt(LocalDateTime.now());
 
 	    eventRepository.save(event);
-	}
-
-	private void saveTransactions(Event event, List<Result> results) {
-
-	    List<Transaction> transactions = TransactionFactory.fromResults(event, results);
-
-	    transactionRepository.saveAll(transactions);
 	}
 
 	public EventSummaryProjection getSummaryProjection(Long idEvent) {
