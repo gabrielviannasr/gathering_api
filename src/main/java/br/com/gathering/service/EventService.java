@@ -86,12 +86,19 @@ public class EventService extends AbstractService<Event> {
 	}
 
 	@Transactional
-	public Event create(Event model) {
+	public Event create(EventDTO dto) {
+
+		Event model = dto.toModel();
+
 	    model.init();
 
 	    validate(model);
 
+	    LogHelper.info(log, "Saving", "model", model);
+
 	    Event saved = repository.save(model);
+
+	    LogHelper.info(log, "Saved", "id", saved.getId());
 
 	    return saved;
 	}
@@ -122,11 +129,15 @@ public class EventService extends AbstractService<Event> {
 
 	    validate(current);
 
+	    LogHelper.info(log, "Updating", "model", current);
+	    
 	    Event updated = repository.save(current);
 
 	    refreshRounds(id);
 	    
 	    refresh(id);
+	    
+	    LogHelper.info(log, "Updated", "id", updated.getId());
 
 	    return updated;
 	}

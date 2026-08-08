@@ -56,13 +56,13 @@ public class EventController {
 
 	@PostMapping
 	public Event create(@RequestBody EventDTO dto) {
-		LogHelper.info(log, RouteHelper.POST(PATH), "payload", dto);
-	    return service.create(dto.toModel());
+		LogHelper.info(log, RouteHelper.POST(PATH), "dto", dto);
+	    return service.create(dto);
 	}
 
 	@PutMapping("/{id}")
 	public Event update(@PathVariable Long id, @RequestBody EventDTO dto) {
-		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "payload", dto);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "dto", dto);
 	    return service.update(id, dto);
 	}
 
