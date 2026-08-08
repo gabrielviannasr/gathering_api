@@ -12,9 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.dto.request.GatheringDTO;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.repository.GatheringRepository;
 import br.com.gathering.util.LogHelper;
+import jakarta.transaction.Transactional;
 
 @Service
 public class GatheringService extends AbstractService<Gathering> {
@@ -57,21 +59,42 @@ public class GatheringService extends AbstractService<Gathering> {
 	    return gathering;
 	}
 
-	public Gathering save(Gathering model) {
-		model.init();
-//		validate(model);
-		LogHelper.info(log, "Saving", "payload", model);
-		Gathering saved = repository.save(model);
-        LogHelper.info(log, "Saved", "id", saved.getId());
-        return saved;
+	@Transactional
+	public Gathering create(GatheringDTO dto) {
+
+		Gathering model = dto.toModel();
+
+	    model.init();
+
+	    validate(model);
+
+	    LogHelper.info(log, "Saving", "model", model);
+
+	    Gathering saved = repository.save(model);
+
+	    LogHelper.info(log, "Saved", "id", saved.getId());
+
+	    return saved;
 	}
 
-	public Gathering update(Gathering gathering) {
-	    Gathering current = getById(gathering.getId());
+	@Transactional
+	public Gathering update(Long id, GatheringDTO dto) {
+	
+		Gathering current = getById(id);
 
-	    current.setName(gathering.getName());
+		Gathering model = dto.toModel();
 
-	    return repository.save(current);
+	    current.setName(model.getName());
+
+	    validate(current);
+
+	    LogHelper.info(log, "Updating", "model", current);
+
+	    Gathering updated = repository.save(current);
+
+	    LogHelper.info(log, "Updated", "id", updated.getId());
+
+	    return updated;
 	}
 
 	public List<Integer> getYears() {
@@ -80,4 +103,7 @@ public class GatheringService extends AbstractService<Gathering> {
 	    return years;
 	}
 
+	private void validate(Gathering model) {
+		
+	}
 }

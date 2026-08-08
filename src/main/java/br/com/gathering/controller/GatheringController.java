@@ -55,19 +55,17 @@ public class GatheringController {
 	}
 
 	@PostMapping
-	public Gathering save(@RequestBody GatheringDTO dto) {
-		Gathering model = dto.toModel();
-		LogHelper.info(log, RouteHelper.POST(PATH), "payload", model);
-		return service.save(model); 
+	public Gathering create(@RequestBody GatheringDTO dto) {
+		LogHelper.info(log, RouteHelper.POST(PATH), "dto", dto);
+	    return service.create(dto);
 	}
 
 	@PutMapping("/{id}")
 	public Gathering update(@PathVariable Long id, @RequestBody GatheringDTO dto) {
-		Gathering model = dto.toModel();
-		model.setId(id);
-		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.update(model);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "dto", dto);
+	    return service.update(id, dto);
 	}
+
 	@GetMapping("/year")
 	public List<Integer> getYears() {
 	    LogHelper.info(log, RouteHelper.GET(PATH, "/year"));
