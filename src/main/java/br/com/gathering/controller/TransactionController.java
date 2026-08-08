@@ -57,19 +57,17 @@ public class TransactionController {
 	}
 
 	@PostMapping
-	public Transaction save(@RequestBody TransactionDTO dto) {
-		Transaction model = dto.toModel();
-		LogHelper.info(log, RouteHelper.POST(PATH), "payload", model);
-		return service.save(model);
+	public Transaction create(@RequestBody TransactionDTO dto) {
+		LogHelper.info(log, RouteHelper.POST(PATH), "dto", dto);
+	    return service.create(dto);
 	}
 
 	@PutMapping("/{id}")
 	public Transaction update(@PathVariable Long id, @RequestBody TransactionDTO dto) {
-		Transaction model = dto.toModel();
-		model.setId(id);
-		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.update(model);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "dto", dto);
+	    return service.update(id, dto);
 	}
+
 
 	@DeleteMapping("/{id}")
 	public void remove(@PathVariable Long id) {

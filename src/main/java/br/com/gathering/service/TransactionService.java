@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.constant.TransactionType;
+import br.com.gathering.dto.request.TransactionDTO;
 import br.com.gathering.dto.response.EventResponseDTO;
 import br.com.gathering.dto.response.FormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResponseDTO;
@@ -26,6 +27,7 @@ import br.com.gathering.repository.GatheringRepository;
 import br.com.gathering.repository.PlayerRepository;
 import br.com.gathering.repository.TransactionRepository;
 import br.com.gathering.util.LogHelper;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TransactionService extends AbstractService<Transaction> {
@@ -56,68 +58,45 @@ public class TransactionService extends AbstractService<Transaction> {
 		return list.map(this::buildTransactionResponse);
 	}
 
-    private TransactionResponseDTO buildTransactionResponse(Transaction item) {
-    	return TransactionResponseDTO.builder()
-    			.id(item.getId())
-    			.amount(item.getAmount())
-    			.createdAt(item.getCreatedAt())
-    			.description(item.getDescription())
-    			.type(
-					TransactionTypeResponseDTO.builder()
-						.id(item.getType().getId())
-						.name(item.getType().getName())
-						.description(item.getType().getDescription())
-						.build())
-    			.player(
-					PlayerResponseDTO.builder()
-						.id(item.getPlayer().getId())
-						.name(item.getPlayer().getName())
-	    				.build())
-    			.event(
-					item.getEvent() == null ? null :
-    				EventResponseDTO.builder()
-    				.id(item.getEvent().getId())
-    				.createdAt(item.getEvent().getCreatedAt())
-    				.format(FormatResponseDTO.builder()
-						.id(item.getEvent().getFormat().getId())
-						.name(item.getEvent().getFormat().getName())
-						.build())
-    				.build())
-    			.gathering(GatheringResponseDTO.builder()
-    					.id(item.getGathering().getId())
-    					.name(item.getGathering().getName())
-    					.year(item.getGathering().getYear())
-    					.build())
-    			.build();
-    }
-
 	public TransactionResponseDTO getById(Long id) {
 		LogHelper.info(log, "Fetching by ID", "id", id);
 		Transaction model = repository.findById(id)
-		    .orElseThrow(() -> {
-		        LogHelper.warn(log, "Not found", "id", id);
-		        return new ResponseStatusException(HttpStatus.NOT_FOUND);
-		    });
+				.orElseThrow(() -> {
+					LogHelper.warn(log, "Not found", "id", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND);
+				});
 
 		LogHelper.info(log, "Found", "id", model.getId());
 
 		return buildTransactionResponse(model);
 	}
 
-	public Transaction save(Transaction model) {
-		model.init();
-		validate(model);
-		LogHelper.info(log, "Saving", "payload", model);
-		Transaction saved = repository.save(model);
-		LogHelper.info(log, "Saved", "id", saved.getId());
-		return saved;
+	@Transactional
+	public Transaction create(TransactionDTO dto) {
+
+		Transaction model = dto.toModel();
+
+	    model.init();
+
+	    validate(model);
+
+	    LogHelper.info(log, "Saving", "model", model);
+
+	    Transaction saved = repository.save(model);
+
+	    LogHelper.info(log, "Saved", "id", saved.getId());
+
+	    return saved;
 	}
 
-	public Transaction update(Transaction model) {
+	public Transaction update(Long id, TransactionDTO dto) {
 
-	    Transaction current = repository.findById(model.getId())
-	            .orElseThrow(() -> new ResponseStatusException(
-	                    HttpStatus.NOT_FOUND, "Transaction not found"));
+//	    Transaction current = getById(id);
+		Transaction current = repository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND, "Transaction not found"));
+	    
+	    Transaction model = dto.toModel();
 
 		 // Apenas campos editáveis.
 		 // Gathering, Player e Event definem o contexto da transação e não podem ser alterados.
@@ -128,11 +107,11 @@ public class TransactionService extends AbstractService<Transaction> {
 
 	    validate(current);
 
-	    LogHelper.info(log, "Updating", "payload", current);
+	    LogHelper.info(log, "Updating", "model", current);
 
 	    Transaction saved = repository.save(current);
 
-	    LogHelper.info(log, "Saved", "id", saved.getId());
+	    LogHelper.info(log, "Updated", "id", saved.getId());
 
 	    return saved;
 	}
@@ -222,5 +201,41 @@ public class TransactionService extends AbstractService<Transaction> {
 			? walletProjection.getWallet()
 			: 0.0; // In case of first event, so without transactions
 	}
+
+    private TransactionResponseDTO buildTransactionResponse(Transaction item) {
+    	return TransactionResponseDTO.builder()
+    			.id(item.getId())
+    			.amount(item.getAmount())
+    			.createdAt(item.getCreatedAt())
+    			.description(item.getDescription())
+    			.type(
+					TransactionTypeResponseDTO.builder()
+						.id(item.getType().getId())
+						.name(item.getType().getName())
+						.description(item.getType().getDescription())
+						.build())
+    			.player(
+					PlayerResponseDTO.builder()
+						.id(item.getPlayer().getId())
+						.name(item.getPlayer().getName())
+	    				.build())
+    			.event(
+					item.getEvent() == null ? null :
+    				EventResponseDTO.builder()
+    				.id(item.getEvent().getId())
+    				.createdAt(item.getEvent().getCreatedAt())
+    				.format(FormatResponseDTO.builder()
+						.id(item.getEvent().getFormat().getId())
+						.name(item.getEvent().getFormat().getName())
+						.build())
+    				.build())
+    			.gathering(GatheringResponseDTO.builder()
+    					.id(item.getGathering().getId())
+    					.name(item.getGathering().getName())
+    					.year(item.getGathering().getYear())
+    					.build())
+    			.build();
+    }
+
 
 }
