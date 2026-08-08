@@ -13,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.dto.request.PlayerDTO;
 import br.com.gathering.entity.Player;
 import br.com.gathering.repository.PlayerRepository;
 import br.com.gathering.util.LogHelper;
+import jakarta.transaction.Transactional;
 
 @Service
 public class PlayerService extends AbstractService<Player> {
@@ -54,13 +56,45 @@ public class PlayerService extends AbstractService<Player> {
         return event;
 	}
 
-	public Player save(Player model) {
-		model.init();
-//		validate(model);
-		LogHelper.info(log, "Saving", "payload", model);
-		Player saved = repository.save(model);
-        LogHelper.info(log, "Saved", "id", saved.getId());
-        return saved;
+	public Player create(PlayerDTO dto) {
+
+		Player model = dto.toModel();
+
+	    model.init();
+
+	    validate(model);
+
+	    LogHelper.info(log, "Saving", "model", model);
+
+	    Player saved = repository.save(model);
+
+	    LogHelper.info(log, "Saved", "id", saved.getId());
+
+	    return saved;
+	}
+
+	@Transactional
+	public Player update(Long id, PlayerDTO dto) {
+
+		Player current = getById(id);
+
+		Player model = dto.toModel();
+
+	    current.setName(model.getName());
+
+	    validate(current);
+
+	    LogHelper.info(log, "Updating", "model", current);
+
+	    Player updated = repository.save(current);
+
+	    LogHelper.info(log, "Updated", "id", updated.getId());
+
+	    return updated;
+	}
+
+	private void validate(Player model) {
+		
 	}
 
 }
