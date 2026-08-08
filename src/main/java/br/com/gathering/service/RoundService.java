@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.dto.request.RoundDTO;
 import br.com.gathering.entity.Event;
 import br.com.gathering.entity.EventFee;
 import br.com.gathering.entity.Player;
@@ -22,6 +23,7 @@ import br.com.gathering.repository.PlayerRepository;
 import br.com.gathering.repository.RoundRepository;
 import br.com.gathering.util.LogHelper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class RoundService extends AbstractService<Round> {
@@ -58,7 +60,7 @@ public class RoundService extends AbstractService<Round> {
 	}
 
 	public Round getById(Long id) {
-		LogHelper.info(log, "Fetching by ID", "id", id);
+		LogHelper.info(log, "Fetching", "id", id);
 		Optional<Round> optional = repository.findById(id);
 		if (optional.isEmpty()) {
 			LogHelper.warn(log, "Not found", "id", id);
@@ -67,6 +69,18 @@ public class RoundService extends AbstractService<Round> {
 		Round round = optional.get();
 		LogHelper.info(log, "Found", "id", round.getId());
 		return round;
+	}
+
+	public Round getByIdEventAndRound(Long idEvent, Integer round) {
+		LogHelper.info(log, "Fetching", "idEvent", idEvent, "round", round);
+		Optional<Round> optional = repository.findByIdEventAndRound(idEvent, round);
+		if (optional.isEmpty()) {
+			LogHelper.warn(log, "Not found", "idEvent", idEvent, "round", round);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		Round saved = optional.get();
+		LogHelper.info(log, "Found", "id", saved.getId());
+		return saved;
 	}
 
 	public Round getByRound(Round model) {
@@ -83,33 +97,42 @@ public class RoundService extends AbstractService<Round> {
 		return round;
 	}
 
-	public Round create(Round model) {
-		Event event = eventService.getById(model.getIdEvent());
+	@Transactional
+	public Round create(Long idEvent, RoundDTO dto) {
+
+		Event event = eventService.getById(idEvent);
 
 		eventService.validateEditable(event);
-		
+
+		Round model = dto.toModel();
+
+		model.setIdEvent(idEvent);
+
 		model.init();
-		// validate(model);
-		LogHelper.info(log, "Saving", "payload", model);
+
+		validate(model);
+
+		LogHelper.info(log, "Saving", "model", model);
 
 		Round saved = repository.save(model);
 
-		eventService.refresh(saved.getIdEvent());
+		eventService.refresh(idEvent);
 
 		LogHelper.info(log, "Saved", "id", saved.getId());
+
 		return saved;
 	}
-	
-	public Round update(Round model) {
 
-		Event event = eventService.getById(model.getIdEvent());
+	@Transactional
+	public Round update(Long idEvent, Integer round, RoundDTO dto) {
+
+		Event event = eventService.getById(idEvent);
 
 		eventService.validateEditable(event);
 
-		Round current = repository
-			    .findByIdEventAndRound(model.getIdEvent(), model.getRound())
-			    .orElseThrow(() ->
-			        new EntityNotFoundException("Round not found"));
+		Round current = getByIdEventAndRound(idEvent, round);
+
+		Round model = dto.toModel();
 
 	    current.setPlayersTotal(model.getPlayersTotal());
 	    current.setIdPlayerWinner(model.getIdPlayerWinner());
@@ -132,9 +155,10 @@ public class RoundService extends AbstractService<Round> {
 	    current.getPlayers().addAll(players);
 
 	    calculate(current);
+
 	    validate(current);
 
-	    LogHelper.info(log, "Updating", "payload", current);
+	    LogHelper.info(log, "Updating", "model", current);
 
 	    Round saved = repository.save(current);
 
@@ -159,6 +183,7 @@ public class RoundService extends AbstractService<Round> {
 	}
 	
 	private void calculate(Round model) {
+
 		model.setPlayersTotal(model.getPlayers().size());
 		
 		Event event = eventRepository.findById(model.getIdEvent())

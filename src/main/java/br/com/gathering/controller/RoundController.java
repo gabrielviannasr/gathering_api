@@ -68,19 +68,14 @@ public class RoundController {
 
 	@PostMapping
 	public Round create(@PathVariable Long idEvent, @RequestBody RoundDTO dto) {
-		Round model = dto.toModel();
-		model.setIdEvent(idEvent);
-		LogHelper.info(log, RouteHelper.POST(PATH), "payload", model);
-		return service.create(model);
+		LogHelper.info(log, RouteHelper.POST(PATH), "idEvent", idEvent, "dto", dto);
+	    return service.create(idEvent, dto);
 	}
 
 	@PutMapping("/{round}")
 	public Round update(@PathVariable Long idEvent, @PathVariable Integer round, @RequestBody RoundDTO dto) {
-		Round model = dto.toModel();
-		model.setIdEvent(idEvent);
-		model.setRound(round);
-		LogHelper.info(log, RouteHelper.PUT(PATH, "/{round}"), "round", round, "payload", model);
-		return service.update(model);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{round}"), "idEvent", idEvent, "round", round, "dto", dto);
+	    return service.update(idEvent, round, dto);
 	}
 
 }
