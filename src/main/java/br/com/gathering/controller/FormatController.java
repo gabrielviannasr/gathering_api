@@ -55,18 +55,15 @@ public class FormatController {
 	}
 
 	@PostMapping
-	public Format save(@RequestBody FormatDTO dto) {
-		Format model = dto.toModel();
-		LogHelper.info(log, RouteHelper.POST(PATH), "payload", model);
-		return service.save(model);
+	public Format create(@RequestBody FormatDTO dto) {
+		LogHelper.info(log, RouteHelper.POST(PATH), "dto", dto);
+	    return service.create(dto);
 	}
 
 	@PutMapping("/{id}")
 	public Format update(@PathVariable Long id, @RequestBody FormatDTO dto) {
-		Format model = dto.toModel();
-		model.setId(id);
-		LogHelper.info(log, RouteHelper.PUT(PATH), "id", id, "payload", model);
-		return service.save(model);
+		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "dto", dto);
+	    return service.update(id, dto);
 	}
 
 }

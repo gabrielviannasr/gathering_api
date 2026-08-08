@@ -13,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.gathering.dto.request.FormatDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.repository.FormatRepository;
 import br.com.gathering.util.LogHelper;
+import jakarta.transaction.Transactional;
 
 @Service
 public class FormatService extends AbstractService<Format> {
@@ -54,13 +56,45 @@ public class FormatService extends AbstractService<Format> {
         return event;
 	}
 
-	public Format save(Format model) {
-		model.init();
-//		validate(model);
-		LogHelper.info(log, "Saving", "payload", model);
-		Format saved = repository.save(model);
-        LogHelper.info(log, "Saved", "id", saved.getId());
-        return saved;
+	@Transactional
+	public Format create(FormatDTO dto) {
+
+		Format model = dto.toModel();
+
+	    model.init();
+
+	    validate(model);
+
+	    LogHelper.info(log, "Saving", "model", model);
+
+	    Format saved = repository.save(model);
+
+	    LogHelper.info(log, "Saved", "id", saved.getId());
+
+	    return saved;
 	}
 
+	@Transactional
+	public Format update(Long id, FormatDTO dto) {
+	
+		Format current = getById(id);
+
+		Format model = dto.toModel();
+
+	    current.setName(model.getName());
+
+	    validate(current);
+
+	    LogHelper.info(log, "Updating", "model", current);
+
+	    Format updated = repository.save(current);
+
+	    LogHelper.info(log, "Updated", "id", updated.getId());
+
+	    return updated;
+	}
+
+	private void validate(Format model) {
+		
+	}
 }
