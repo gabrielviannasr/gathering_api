@@ -1,7 +1,6 @@
 package br.com.gathering.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import jakarta.transaction.Transactional;
 public class FormatService extends AbstractService<Format> {
 
 	private static final Logger log = LogHelper.getLogger();
+	private static final String ENTITY = "Format";
 
 	@Autowired
 	private FormatRepository repository;
@@ -32,28 +32,41 @@ public class FormatService extends AbstractService<Format> {
 	}
 
 	public List<Format> getList(Format model) {
+
+		LogHelper.info(log, "Fetching list", "model", model);
+
 		List<Format> result = repository.findAll(getExample(model), getSort());
+
         LogHelper.info(log, "Fetched list", "count", result.size());
+
         return result;
 	}
 
 	public Page<Format> getPage(Format model, Sort sort, int page, int size) {
+
 		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+
         Page<Format> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+
         LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+
         return result;
 	}
 
 	public Format getById(Long id) {
-		LogHelper.info(log, "Fetching by ID", "id", id);
-        Optional<Format> optional = repository.findById(id);
-        if (optional.isEmpty()) {
-            LogHelper.warn(log, "Not found", "id", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        Format event = optional.get();
-        LogHelper.info(log, "Found", "id", event.getId());
-        return event;
+
+	    LogHelper.info(log, "Fetching by id", "id", id);
+
+	    Format found = repository.findById(id)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, ENTITY + " not found", "id", id);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", found.getId());
+
+	    return found;
 	}
 
 	@Transactional

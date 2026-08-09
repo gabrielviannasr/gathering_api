@@ -28,14 +28,13 @@ public class FormatController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/format";
-	private static final String ENTITY = "Format";
 	
 	@Autowired
 	private FormatService service;
 
 	@GetMapping
 	public List<Format> getList(Format model) {
-		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
+		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
 		return service.getList(model);
 	}
 
