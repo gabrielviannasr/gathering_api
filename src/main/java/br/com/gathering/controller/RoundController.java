@@ -28,16 +28,14 @@ public class RoundController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/event/{idEvent}/round";
-	private static final String ENTITY = "Round";
 
 	@Autowired
 	private RoundService service;
 
 	@GetMapping
 	public List<Round> getList(@PathVariable Long idEvent, Round model) {
-		model.setIdEvent(idEvent);
-		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
-		return service.getList(model);
+		LogHelper.info(log, RouteHelper.GET(PATH), "idEvent", idEvent, "model", model);
+		return service.getList(idEvent, model);
 	}
 
 	@GetMapping("/page")
@@ -46,24 +44,20 @@ public class RoundController {
 			@SortDefault.SortDefaults({ @SortDefault(sort = "idEvent"), @SortDefault(sort = "round") }) Sort sort,
 			@RequestParam int page,
 			@RequestParam int size) {
-		model.setIdEvent(idEvent);
-		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
-		return service.getPage(model, sort, page, size);
-	}
-
-	@GetMapping("/{round}")
-	public Round getByRound(@PathVariable Long idEvent, @PathVariable Integer round) {
-		LogHelper.info(log, RouteHelper.GET(PATH, "{round}"), "round", round, "idEvent", idEvent);
-		Round model = new Round();
-		model.setIdEvent(idEvent);
-		model.setRound(round);
-		return service.getByRound(model);
+		LogHelper.info(log, RouteHelper.GET(PATH, "/page"),  "idEvent", idEvent, "page", page, "size", size);
+		return service.getPage(idEvent, model, sort, page, size);
 	}
 
 	@GetMapping("/id/{idRound}")
 	public Round getById(@PathVariable Long idRound) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/id/{idRound}"), "idRound", idRound);
 		return service.getById(idRound);
+	}
+
+	@GetMapping("/{round}")
+	public Round getByIdEventAndRound(@PathVariable Long idEvent, @PathVariable Integer round) {
+		LogHelper.info(log, RouteHelper.GET(PATH, "/{round}"), "idEvent", idEvent, "round", round);
+		return service.getByIdEventAndRound(idEvent, round);
 	}
 
 	@PostMapping

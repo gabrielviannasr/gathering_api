@@ -1,7 +1,6 @@
 package br.com.gathering.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,7 @@ import jakarta.transaction.Transactional;
 public class RoundService extends AbstractService<Round> {
 
 	private static final Logger log = LogHelper.getLogger();
+	private static final String ENTITY = "Round";
 
 	@Autowired
 	private RoundRepository repository;
@@ -46,55 +46,62 @@ public class RoundService extends AbstractService<Round> {
 		return Sort.by(Order.asc("createdAt"));
 	}
 
-	public List<Round> getList(Round model) {
+	public List<Round> getList(Long idEvent, Round model) {
+
+		model.setIdEvent(idEvent);
+		
+		LogHelper.info(log, "Fetching list", "model", model);
+
 		List<Round> result = repository.findAll(getExample(model), getSort());
-		LogHelper.info(log, "Fetched list", "count", result.size());
-		return result;
+
+        LogHelper.info(log, "Fetched list", "count", result.size());
+
+        return result;
 	}
 
-	public Page<Round> getPage(Round model, Sort sort, int page, int size) {
+	public Page<Round> getPage(Long idEvent, Round model, Sort sort, int page, int size) {
+
+		model.setIdEvent(idEvent);
+
 		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+
         Page<Round> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+
         LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+
         return result;
 	}
 
 	public Round getById(Long id) {
-		LogHelper.info(log, "Fetching", "id", id);
-		Optional<Round> optional = repository.findById(id);
-		if (optional.isEmpty()) {
-			LogHelper.warn(log, "Not found", "id", id);
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		Round round = optional.get();
-		LogHelper.info(log, "Found", "id", round.getId());
-		return round;
+
+	    LogHelper.info(log, "Fetching by id", "id", id);
+
+	    Round found = repository.findById(id)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, ENTITY + " not found", "id", id);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", found.getId());
+
+	    return found;
 	}
 
 	public Round getByIdEventAndRound(Long idEvent, Integer round) {
-		LogHelper.info(log, "Fetching", "idEvent", idEvent, "round", round);
-		Optional<Round> optional = repository.findByIdEventAndRound(idEvent, round);
-		if (optional.isEmpty()) {
-			LogHelper.warn(log, "Not found", "idEvent", idEvent, "round", round);
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		Round saved = optional.get();
-		LogHelper.info(log, "Found", "id", saved.getId());
-		return saved;
-	}
 
-	public Round getByRound(Round model) {
-		LogHelper.info(log, "Fetching by Round", "round", model.getRound(), "idEvent", model.getIdEvent());
+		LogHelper.info(log, "Fetching by idEvent and round", "idEvent", idEvent, "round", round);
 
-		Optional<Round> optional = repository.findOne(getExample(model));
-		
-		if (optional.isEmpty()) {
-			LogHelper.warn(log, "Not found", "round", model.getRound(), "idEvent", model.getIdEvent());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		Round round = optional.get();
-		LogHelper.info(log, "Found", "id", round.getId());
-		return round;
+		Round found = repository.findByIdEventAndRound(idEvent, round)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, ENTITY + " not found", "idEvent", idEvent, "round", round);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", found.getId());
+
+	    return found;
 	}
 
 	@Transactional
@@ -169,19 +176,6 @@ public class RoundService extends AbstractService<Round> {
 	    return saved;
 	}
 	
-	private void validate(Round model) {
-
-	    if (model.getIdPlayerWinner() != null &&
-	        model.getPlayers().stream().noneMatch(p -> p.getId().equals(model.getIdPlayerWinner()))) {
-
-//	        throw new BusinessException("Winner must be one of the round players.");
-	    	throw new ResponseStatusException(
-	    		    HttpStatus.BAD_REQUEST,
-	    		    "Winner must be one of the round players.");
-	    }
-
-	}
-	
 	private void calculate(Round model) {
 
 		model.setPlayersTotal(model.getPlayers().size());
@@ -202,6 +196,19 @@ public class RoundService extends AbstractService<Round> {
 		    model.setPrize(event.getRoundFee() * model.getPlayersTotal());
 		    model.setLoserPot(0.0);
 		}
+	}
+
+	private void validate(Round model) {
+
+	    if (model.getIdPlayerWinner() != null &&
+	        model.getPlayers().stream().noneMatch(p -> p.getId().equals(model.getIdPlayerWinner()))) {
+
+//	        throw new BusinessException("Winner must be one of the round players.");
+	    	throw new ResponseStatusException(
+	    		    HttpStatus.BAD_REQUEST,
+	    		    "Winner must be one of the round players.");
+	    }
+
 	}
 
 }
