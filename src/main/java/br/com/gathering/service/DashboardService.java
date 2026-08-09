@@ -17,12 +17,11 @@ import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO.GatheringSummaryResponseDTOBuilder;
 import br.com.gathering.dto.response.GatheringWalletResponseDTO;
-import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
-import br.com.gathering.dto.response.TransactionTypeResponseDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
+import br.com.gathering.mapper.GatheringWalletResponseMapper;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.FormatProjection;
 import br.com.gathering.projection.gathering.GatheringSummaryProjection;
@@ -54,7 +53,7 @@ public class DashboardService {
         LogHelper.info(log, "Fetched wallet balance list", "count", list.size());
 
         return list.stream()
-        		.map(this::buildGatheringWalletResponse)
+        		.map(GatheringWalletResponseMapper::from)
         		.toList();
     }
     
@@ -62,27 +61,14 @@ public class DashboardService {
 
         LogHelper.info(log, "Fetching wallet balance by idGathering and idPlayer", "idGathering", idGathering, "idPlayer", idPlayer);
 
-        PlayerWalletProjection found = repository
-            .getWalletBalance(idGathering, idPlayer)
+        PlayerWalletProjection found = repository.getWalletBalance(idGathering, idPlayer)
             .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Carteira do jogador não encontrado"));
+            		HttpStatus.NOT_FOUND,
+            		"Carteira do jogador não encontrado"));
 
         LogHelper.info(log, "Found", "idGathering", idGathering, "idPlayer", idPlayer);
 
-        return buildGatheringWalletResponse(found);
-    }
-
-    private GatheringWalletResponseDTO buildGatheringWalletResponse(PlayerWalletProjection item) {
-    	return GatheringWalletResponseDTO.builder()
-    			.idPlayer(item.getIdPlayer())
-    			.player(
-    					PlayerResponseDTO.builder()
-    					.id(item.getIdPlayer())
-    					.name(item.getPlayerName())
-    					.build())
-    			.wallet(item.getWallet())
-    			.build();
+        return GatheringWalletResponseMapper.from(found);
     }
 
     public List<TransactionResponseDTO> getTransactions(Long idGathering) {
