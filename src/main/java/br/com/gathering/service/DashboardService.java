@@ -20,6 +20,7 @@ import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
+import br.com.gathering.mapper.GatheringFormatResponseMapper;
 import br.com.gathering.mapper.GatheringWalletResponseMapper;
 import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.projection.RankProjection;
@@ -109,21 +110,8 @@ public class DashboardService {
             ))
         );
         return list.stream()
-        	    .map(this::buildGatheringFormatResponse)
+        	    .map(GatheringFormatResponseMapper::from)
         	    .toList();
-    }
-
-    private GatheringFormatResponseDTO buildGatheringFormatResponse(FormatProjection item) {
-        return GatheringFormatResponseDTO.builder()
-            .idFormat(item.getIdFormat())
-            .format(
-                FormatResponseDTO.builder()
-                    .id(item.getIdFormat())
-                    .name(item.getFormatName())
-                    .build()
-            )
-            .rounds(item.getRounds())
-            .build();
     }
     
     public List<RankProjection> getRankProjection(Long idGathering) {
