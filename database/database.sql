@@ -1,4 +1,5 @@
 /* CREATE SEQUENCES */
+
 CREATE SEQUENCE gathering.sequence_event START 1;
 CREATE SEQUENCE gathering.sequence_event_fee START 1;
 CREATE SEQUENCE gathering.sequence_format START 1;
@@ -8,13 +9,17 @@ CREATE SEQUENCE gathering.sequence_result START 1;
 CREATE SEQUENCE gathering.sequence_round START 1;
 CREATE SEQUENCE gathering.sequence_transaction START 1;
 CREATE SEQUENCE gathering.sequence_transaction_type START 1;
+
 /* CREATE SEQUENCES */
 
 /* CREATE TABLES */
+
 -- 🧍‍♂️ Tabela de jogadores / participantes
 CREATE TABLE gathering.player (
-    id INT DEFAULT nextval('gathering.sequence_player'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_player'),-- PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
+
+    CONSTRAINT pk_player PRIMARY KEY (id),
 
     CONSTRAINT uq_player_name UNIQUE (name)
 );
@@ -25,9 +30,11 @@ Detalhes pessoais e financeiros são tratados em entidades relacionadas.';
 
 -- 🏆 Tabela principal de confras
 CREATE TABLE gathering.gathering (
-    id INT DEFAULT nextval('gathering.sequence_gathering'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_gathering'),-- PRIMARY KEY,
 	year INT DEFAULT EXTRACT(YEAR FROM CURRENT_DATE),
-    name VARCHAR(20)
+    name VARCHAR(20),
+
+    CONSTRAINT pk_gathering PRIMARY KEY (id)
 );
 
 COMMENT ON TABLE gathering.gathering IS
@@ -36,9 +43,11 @@ Cada gathering é criada e gerenciada por um jogador responsável (id_player).';
 
 -- 🧩 Formatos de jogo
 CREATE TABLE gathering.format (
-    id INT DEFAULT nextval('gathering.sequence_format'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_format'),-- PRIMARY KEY,
     name VARCHAR(20) NOT NULL,
-    life_count INT NOT NULL
+    life_count INT NOT NULL,
+
+    CONSTRAINT pk_format PRIMARY KEY (id)
 );
 
 COMMENT ON TABLE gathering.format IS
@@ -46,9 +55,9 @@ COMMENT ON TABLE gathering.format IS
 
 -- 🎯 Tabela de eventos
 CREATE TABLE gathering.event (
-	id int4 NOT NULL DEFAULT nextval('gathering.sequence_event'::regclass),
-	id_gathering int4 NOT NULL,
-	id_format int4 NULL,
+	id INT NOT NULL DEFAULT nextval('gathering.sequence_event'),-- PRIMARY KEY,
+	id_gathering INT NOT NULL,
+	id_format INT NULL,
 
     canceled BOOLEAN NOT NULL DEFAULT false,
     finalized BOOLEAN NOT NULL DEFAULT false,
@@ -67,16 +76,17 @@ CREATE TABLE gathering.event (
     confra_pot NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (confra_pot >= 0),
     prize NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (prize >= 0),
 
-    CONSTRAINT event_state_check CHECK (NOT (canceled AND finalized)),
+    CONSTRAINT pk_event PRIMARY KEY (id),
 
-	CONSTRAINT event_confra_fee_check CHECK (confra_fee >= 0),
-	CONSTRAINT event_confra_pot_check CHECK (confra_pot >= 0),
-	CONSTRAINT event_loser_pot_check CHECK (loser_pot >= 0),
-    CONSTRAINT event_prize_check CHECK (prize >= 0),
-	CONSTRAINT event_round_fee_check CHECK (round_fee >= 0),
+	CONSTRAINT fk_event_format FOREIGN KEY (id_format) REFERENCES gathering.format(id),
+	CONSTRAINT fk_event_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id),
 
-	CONSTRAINT fk_event_format FOREIGN KEY (id_format) REFERENCES gathering."format"(id),
-	CONSTRAINT fk_event_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id)
+    CONSTRAINT ch_event_state CHECK (NOT (canceled AND finalized)),
+	CONSTRAINT ch_event_confra_fee CHECK (confra_fee >= 0),
+	CONSTRAINT ch_event_confra_pot CHECK (confra_pot >= 0),
+	CONSTRAINT ch_event_loser_pot CHECK (loser_pot >= 0),
+    CONSTRAINT ch_event_prize CHECK (prize >= 0),
+	CONSTRAINT ch_event_round_fee CHECK (round_fee >= 0)
 );
 CREATE INDEX idx_event_id_format ON gathering.event USING btree (id_format);
 CREATE INDEX idx_event_id_gathering ON gathering.event USING btree (id_gathering);
@@ -99,7 +109,7 @@ COMMENT ON COLUMN gathering.event.created_at IS 'Data e hora de criação do eve
 
 COMMENT ON COLUMN gathering.event.updated_at IS 'Data e hora da última atualização do evento.';
 
-COMMENT ON COLUMN gathering.event.result_updated_at IS 'Data e hora da última atualização dos resultados persistidos do evento.';
+COMMENT ON COLUMN gathering.event.results_at IS 'Data e hora da última atualização dos resultados persistidos do evento.';
 
 COMMENT ON COLUMN gathering.event.players IS 'Número de jogadores inscritos no evento.';
 
@@ -116,15 +126,21 @@ COMMENT ON COLUMN gathering.event.confra_pot IS 'Total acumulado destinado ao po
 COMMENT ON COLUMN gathering.event.prize IS 'Total acumulado destinado à premiação do evento.';
 
 CREATE TABLE gathering.event_fee (
-    id INT DEFAULT nextval('gathering.sequence_event_fee'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_event_fee'),-- PRIMARY KEY,
     id_event INT NOT NULL,
-    players INT NOT NULL CHECK (players >= 0),
-    prize_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize_fee >= 0),
-    loser_fee NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_fee >= 0),
+    players INT NOT NULL,-- CHECK (players >= 0),
+    prize_fee NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (prize_fee >= 0),
+    loser_fee NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (loser_fee >= 0),
+
+    CONSTRAINT pk_event_fee PRIMARY KEY (id),
 
     CONSTRAINT fk_event_fee_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
 
-    CONSTRAINT uq_event_fee_event_players UNIQUE (id_event, players)
+    CONSTRAINT uq_event_fee_event_players UNIQUE (id_event, players),
+
+    CONSTRAINT ch_event_fee_players CHECK (players >= 0),
+    CONSTRAINT ch_event_fee_prize_fee CHECK (prize_fee >= 0),
+    CONSTRAINT ch_event_fee_loser_fee CHECK (loser_fee >= 0)
 );
 
 COMMENT ON TABLE gathering.event_fee IS
@@ -144,7 +160,7 @@ COMMENT ON COLUMN gathering.event_fee.loser_fee IS
 
 -- 🧭 Tabela de rodadas
 CREATE TABLE gathering.round (
-    id INT DEFAULT nextval('gathering.sequence_round'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_round'),-- PRIMARY KEY,
     id_event INT NOT NULL,
     id_format INT NOT NULL,
     id_player_winner INT,
@@ -153,16 +169,22 @@ CREATE TABLE gathering.round (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     round INT NOT NULL,
-    players INT NOT NULL DEFAULT 0 CHECK (players >= 0),
-    prize NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (prize >= 0),
-    loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0),
+    players INT NOT NULL DEFAULT 0,-- CHECK (players >= 0),
+    prize NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (prize >= 0),
+    loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (loser_pot >= 0),
 
+
+    CONSTRAINT pk_round PRIMARY KEY (id),
 
     CONSTRAINT fk_round_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
     CONSTRAINT fk_round_format FOREIGN KEY (id_format) REFERENCES gathering.format(id),
     CONSTRAINT fk_round_player_winner FOREIGN KEY (id_player_winner) REFERENCES gathering.player(id),
 
-    CONSTRAINT uq_round_event_round UNIQUE (id_event, round)
+    CONSTRAINT uq_round_event_round UNIQUE (id_event, round),
+
+    CONSTRAINT ch_round_players CHECK (players >= 0),
+    CONSTRAINT ch_round_prize CHECK (prize >= 0),
+    CONSTRAINT ch_round_loser_pot CHECK (loser_pot >= 0)
 );
 
 COMMENT ON TABLE gathering.round IS
@@ -193,6 +215,7 @@ CREATE TABLE gathering.round_player (
     id_player INT NOT NULL,
 
     CONSTRAINT pk_round_player PRIMARY KEY (id_round, id_player),
+
     CONSTRAINT fk_round_player_round FOREIGN KEY (id_round) REFERENCES gathering.round(id),
     CONSTRAINT fk_round_player_player FOREIGN KEY (id_player) REFERENCES gathering.player(id)
 );
@@ -212,22 +235,32 @@ COMMENT ON COLUMN gathering.round_player.id_player IS 'Identificador do jogador 
 -- saldos antes e depois da distribuição do pote dos derrotados.
 -- ======================================================
 CREATE TABLE gathering.result (
-    id INT DEFAULT nextval('gathering.sequence_result'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_result'),-- PRIMARY KEY,
     id_event INT NOT NULL,
     id_player INT NOT NULL,
+
     rank INT,
-    wins INT NOT NULL DEFAULT 0 CHECK (wins >= 0),
-    rounds INT NOT NULL DEFAULT 0 CHECK (rounds >= 0),
-    positive NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (positive >= 0), -- total earned
-    negative NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (negative >= 0), -- total owed
+    wins INT NOT NULL DEFAULT 0,-- CHECK (wins >= 0),
+    rounds INT NOT NULL DEFAULT 0,-- CHECK (rounds >= 0),
+
+    positive NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (positive >= 0), -- total earned
+    negative NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (negative >= 0), -- total owed
     rank_balance NUMERIC(10,2) NOT NULL DEFAULT 0, -- net result before pot distribution
-    loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0 CHECK (loser_pot >= 0), -- share of loser pot
+    loser_pot NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (loser_pot >= 0), -- share of loser pot
     final_balance NUMERIC(10,2) NOT NULL DEFAULT 0, -- final result after pot distribution
+
+    CONSTRAINT pk_result PRIMARY KEY (id),
 
     CONSTRAINT fk_result_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
     CONSTRAINT fk_result_player FOREIGN KEY (id_player) REFERENCES gathering.player(id),
 
-    CONSTRAINT uq_result_event_player UNIQUE (id_event, id_player) -- prevents duplicates
+    CONSTRAINT uq_result_event_player UNIQUE (id_event, id_player),
+
+    CONSTRAINT ch_result_wins CHECK (wins >= 0),
+    CONSTRAINT ch_result_rounds CHECK (rounds >= 0),
+    CONSTRAINT ch_result_positive CHECK (positive >= 0),
+    CONSTRAINT ch_result_negative CHECK (negative >= 0),
+    CONSTRAINT ch_result_loser_pot CHECK (loser_pot >= 0)
 );
 
 COMMENT ON TABLE gathering.result IS
@@ -255,9 +288,13 @@ COMMENT ON COLUMN gathering.result.final_balance IS 'Saldo final do jogador apó
 
 -- 💰 Tipos de transações financeiras
 CREATE TABLE gathering.transaction_type (
-    id INT DEFAULT nextval('gathering.sequence_transaction_type'::regclass) PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description VARCHAR(100)
+    id INT DEFAULT nextval('gathering.sequence_transaction_type'),-- PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,-- UNIQUE,
+    description VARCHAR(100),
+
+    CONSTRAINT pk_transaction_type PRIMARY KEY (id),
+
+    CONSTRAINT uq_transaction_type_name UNIQUE (name)
 );
 
 COMMENT ON TABLE gathering.transaction_type IS
@@ -266,14 +303,18 @@ Cada tipo representa uma operação específica do jogador, como depósito, saqu
 
 -- 💸 Tabela de transações financeiras
 CREATE TABLE gathering.transaction (
-    id INT DEFAULT nextval('gathering.sequence_transaction'::regclass) PRIMARY KEY,
+    id INT DEFAULT nextval('gathering.sequence_transaction'),-- PRIMARY KEY,
     id_gathering INT NOT NULL,
     id_event INT NULL,
-    id_player INT NOT NULL,    
-    id_transaction_type INT NOT NULL,    
+    id_player INT NOT NULL,
+    id_transaction_type INT NOT NULL,
+   
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     amount NUMERIC(10,2) NOT NULL,
 	description VARCHAR(500),
+
+    CONSTRAINT pk_transaction PRIMARY KEY (id),
+
     CONSTRAINT fk_transaction_gathering FOREIGN KEY (id_gathering) REFERENCES gathering.gathering(id),
     CONSTRAINT fk_transaction_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
     CONSTRAINT fk_transaction_player FOREIGN KEY (id_player) REFERENCES gathering.player(id),
@@ -284,46 +325,53 @@ COMMENT ON TABLE gathering.transaction IS
 'Armazena todas as transações financeiras realizadas pelos jogadores.
 Um valor positivo representa crédito, enquanto um valor negativo representa débito.
 O campo id_event é opcional e indica o evento que originou a transação, se aplicável.';
+
 /* CREATE TABLES */
 
 /* CREATE VIEWS */
+
 CREATE OR REPLACE VIEW gathering.vw_event_confra_pot AS
     SELECT
         e.id_gathering,
         g.name AS gathering_name,
         e.id AS id_event,
-        COUNT(DISTINCT s.id_player) AS players,
-        COUNT(DISTINCT s.id_player) * e.confra_fee AS confra_pot
+        COUNT(DISTINCT rp.id_player) AS players,
+        COUNT(DISTINCT rp.id_player) * e.confra_fee AS confra_pot
     FROM
-        gathering.round_player s
-        INNER JOIN gathering.round r ON r.id = s.id_round
-        INNER JOIN gathering.player p ON p.id = s.id_player
-        INNER JOIN gathering.event e ON e.id = r.id_event
+        gathering.event e
         INNER JOIN gathering.gathering g ON g.id = e.id_gathering
+        LEFT JOIN gathering.round r
+            ON r.id_event = e.id
+            AND r.canceled = false
+        LEFT JOIN gathering.round_player rp
+            ON rp.id_round = r.id
     WHERE
-        r.canceled = false
+        e.canceled = false
     GROUP BY
-        g.id, g.name, e.id;
+        g.id, g.name, e.id, e.confra_fee;
 
 COMMENT ON VIEW gathering.vw_event_confra_pot IS
 'Exibe o total de jogadores e o valor acumulado destinado ao pote da confra em cada evento.';
 
 CREATE OR REPLACE VIEW gathering.vw_event_loser_pot AS
     SELECT
-        g.id AS id_gathering,
+        e.id_gathering,
         g.name AS gathering_name,
         e.id AS id_event,
         COUNT(r.id) AS rounds,
-        SUM(r.loser_pot) AS loser_pot,
-        SUM(r.prize) AS prize
+        COALESCE(SUM(r.loser_pot), 0) AS loser_pot,
+        COALESCE(SUM(r.prize), 0) AS prize
     FROM
-        gathering.round r
-        INNER JOIN gathering.event e ON e.id = r.id_event
-        INNER JOIN gathering.gathering g ON g.id = e.id_gathering
+        gathering.event e
+        INNER JOIN gathering.gathering g
+            ON g.id = e.id_gathering
+        LEFT JOIN gathering.round r
+            ON r.id_event = e.id
+            AND r.canceled = false
     WHERE
-        r.canceled = false
+        e.canceled = false
     GROUP BY
-        g.id, e.id;
+        e.id_gathering, g.name, e.id;
 
 COMMENT ON VIEW gathering.vw_event_loser_pot IS
 'Exibe o total de rodadas, o valor total de premiações e o valor acumulado no pote dos derrotados por evento.';
@@ -331,7 +379,7 @@ COMMENT ON VIEW gathering.vw_event_loser_pot IS
 CREATE OR REPLACE VIEW gathering.vw_event_player_balance AS
     WITH player_balance AS (
         SELECT
-            e.id_gathering,
+            g.id AS id_gathering,
             g.name AS gathering_name,
             e.id AS id_event,
             p.id AS id_player,
@@ -339,7 +387,6 @@ CREATE OR REPLACE VIEW gathering.vw_event_player_balance AS
             COUNT(CASE WHEN r.id_player_winner = p.id THEN 1 END) AS wins,
             COUNT(s.id_player) AS rounds,
             COALESCE(SUM(r.prize) FILTER (WHERE r.id_player_winner = p.id), 0) AS positive,
-            -- SUM(CASE WHEN r.id_player_winner = p.id THEN r.prize ELSE 0 END) AS positive,
             COUNT(s.id_player) * e.round_fee AS negative
         FROM
             gathering.round_player s
@@ -349,10 +396,9 @@ CREATE OR REPLACE VIEW gathering.vw_event_player_balance AS
             INNER JOIN gathering.gathering g ON g.id = e.id_gathering
         WHERE
             r.canceled = false
+            AND e.canceled = false 
         GROUP BY
-    --	    e.id, p.id
-    --		Garante portabilidade e evita warning em versões futuras.
-            g.id, e.id, p.id, p.name, e.round_fee
+            g.id, e.id, p.id
     )
     SELECT
         id_gathering,
@@ -415,24 +461,23 @@ CREATE OR REPLACE VIEW gathering.vw_event_rank_count AS
 COMMENT ON VIEW gathering.vw_event_rank_count IS
 'Indica quantos jogadores ocupam cada posição no ranking, utilizada para a distribuição do pote dos derrotados.';
 
-CREATE OR REPLACE VIEW gathering.vw_event_loser_pot AS
+CREATE OR REPLACE VIEW gathering.vw_event_summary AS
     SELECT
-        e.id_gathering,
-        g.name AS gathering_name,
-        e.id AS id_event,
-        COUNT(r.id) AS rounds,
-        COALESCE(SUM(r.loser_pot), 0) AS loser_pot,
-        COALESCE(SUM(r.prize), 0) AS prize
-    FROM gathering.event e
-    JOIN gathering.gathering g
-        ON g.id = e.id_gathering
-    LEFT JOIN gathering.round r
-        ON r.id_event = e.id
-    AND r.canceled = false
-    GROUP BY
-        e.id_gathering,
-        g.name,
-        e.id;
+        loser.id_gathering,
+        loser.gathering_name,
+        loser.id_event,
+        COALESCE(confra.players, 0) AS players,
+        loser.rounds,
+        loser.loser_pot,
+        COALESCE(confra.confra_pot, 0) AS confra_pot,
+        loser.prize
+    FROM
+        gathering.vw_event_loser_pot loser
+        LEFT JOIN gathering.vw_event_confra_pot confra
+            ON confra.id_event = loser.id_event
+    ORDER BY
+        loser.id_gathering,
+        loser.id_event;
 
 COMMENT ON VIEW gathering.vw_event_summary IS
 'Apresenta um resumo consolidado de cada evento, unindo informações do pote da confra e do pote dos derrotados.
@@ -451,7 +496,8 @@ CREATE OR REPLACE VIEW gathering.vw_gathering_format AS
         INNER JOIN gathering.round r ON r.id_event = e.id
         INNER JOIN gathering.format f ON r.id_format = f.id
     WHERE
-        r.canceled = false
+        e.canceled = false
+        AND r.canceled = false
     GROUP BY
         g.id, f.id
     ORDER BY
@@ -524,14 +570,20 @@ CREATE OR REPLACE VIEW gathering.vw_gathering_player_transaction AS
         t.description AS transaction_description
     FROM
         gathering.gathering g
-    LEFT JOIN
-        gathering.transaction t ON t.id_gathering = g.id
-    LEFT JOIN
-        gathering.player p ON p.id = t.id_player
-    LEFT JOIN
-        gathering.transaction_type tt ON tt.id = t.id_transaction_type
+        LEFT JOIN gathering.transaction t ON t.id_gathering = g.id
+        LEFT JOIN gathering.event e
+            ON e.id = t.id_event
+            AND e.canceled = false
+        LEFT JOIN gathering.player p ON p.id = t.id_player
+        LEFT JOIN gathering.transaction_type tt ON tt.id = t.id_transaction_type
+    WHERE
+        t.id_event IS NULL
+        OR e.id IS NOT NULL
     ORDER BY
         g.name, p.name, t.created_at, t.id_transaction_type;
+
+COMMENT ON VIEW gathering.vw_gathering_player_transaction IS
+'Apresenta o histórico de transações de cada jogador dentro de cada confra.';
 
 CREATE OR REPLACE VIEW gathering.vw_gathering_player_wallet AS
     SELECT
@@ -539,14 +591,22 @@ CREATE OR REPLACE VIEW gathering.vw_gathering_player_wallet AS
         g.name AS gathering_name,
         p.id AS id_player,
         p.name AS player_name,
-        COUNT(DISTINCT t.id_event) FILTER (WHERE t.id_player = p.id) AS events,
-        COALESCE(SUM(t.amount), 0) AS wallet
+        COUNT(DISTINCT t.id_event)
+            FILTER (WHERE t.id_event IS NOT NULL AND e.id IS NOT NULL) AS events,
+        COALESCE(
+            SUM(t.amount)
+            FILTER (WHERE t.id_event IS NULL OR e.id IS NOT NULL),
+            0
+        ) AS wallet
     FROM
-        gathering.player p
-    LEFT JOIN
-        gathering.transaction t ON t.id_player = p.id
-    LEFT JOIN
-        gathering.gathering g ON g.id = t.id_gathering
+        gathering.gathering g
+        CROSS JOIN gathering.player p
+        LEFT JOIN gathering.transaction t 
+            ON t.id_gathering = g.id
+            AND t.id_player = p.id
+        LEFT JOIN gathering.event e
+            ON e.id = t.id_event
+            AND e.canceled = false
     GROUP BY
         g.id, g.name, p.id, p.name
     ORDER BY
@@ -596,13 +656,15 @@ WITH player_final_balance AS(
 	    COALESCE(SUM(r.negative), 0) AS negative,
 	    COALESCE(SUM(r.rank_balance), 0) AS rank_balance,
 	    COALESCE(SUM(r.loser_pot), 0) AS loser_pot,
-	    -COALESCE(SUM(e.confra_fee), 0) AS confra_pot
---	    ,COALESCE(SUM(r.final_balance), 0) AS final_balance
+        COALESCE(SUM(r.final_balance), 0) AS final_balance,
+        COALESCE(SUM(e.confra_fee), 0) AS confra_pot
 	FROM
 		gathering.result r
 		INNER JOIN gathering.event e ON e.id = r.id_event
 		INNER JOIN gathering.gathering g ON g.id = e.id_gathering
 		INNER JOIN gathering.player p ON p.id = r.id_player
+    WHERE
+        e.canceled = false
 	GROUP BY
 		g.id, p.id
 )
@@ -623,8 +685,12 @@ SELECT
 	negative,
 	rank_balance,
 	loser_pot,
-	confra_pot,
-	rank_balance + loser_pot + confra_pot AS final_balance
+    final_balance,
+    -- é mais coerente não considerar o confra_pot no final_balance, 
+    -- pois isso seria o saldo parcial da carteira,
+    -- faltaria ainda os depósitos e saques.
+	--rank_balance + loser_pot + confra_pot AS final_balance 
+    confra_pot
 FROM
 	player_final_balance
 ORDER BY
@@ -642,43 +708,51 @@ e descontadas as taxas de confra (confra_pot / confra_fee).
 
 O ranking é calculado por confra (id_gathering), ordenando pelo saldo final (final_balance)
 em ordem decrescente e, em caso de empate, pela menor quantidade de rodadas jogadas.';
+
 /* CREATE VIEWS */
 
 /* CREATE INDEXES */
--- 🧱 Tabela gathering.event
--- 🔹 Usadas em joins de praticamente todas as views (vw_event_*, vw_gathering_*).
-CREATE INDEX IF NOT EXISTS idx_event_id_gathering ON gathering.event(id_gathering);
-CREATE INDEX IF NOT EXISTS idx_event_id_format ON gathering.event(id_format);
 
--- 🧱 Tabela gathering.round
--- 🔹 Importantes para relacionar rounds → events e rounds → winners nas views de performance.
-CREATE INDEX IF NOT EXISTS idx_round_id_event ON gathering.round(id_event);
-CREATE INDEX IF NOT EXISTS idx_round_id_player_winner ON gathering.round(id_player_winner);
+-- event
+CREATE INDEX IF NOT EXISTS idx_event_id_gathering
+    ON gathering.event(id_gathering);
 
--- 🧱 Tabela gathering.round_player 
--- 🔹 Usadas em vw_event_player_balance, base do ranking e do resumo.
-CREATE INDEX IF NOT EXISTS idx_round_player_id_round ON gathering.round_player (id_round);
-CREATE INDEX IF NOT EXISTS idx_round_player_id_player ON gathering.round_player (id_player);
+CREATE INDEX IF NOT EXISTS idx_event_id_format
+    ON gathering.event(id_format);
 
--- 🧱 Tabela gathering.transaction
--- 🔹 Essencial para as views de saldo (vw_gathering_player_wallet) e consultas de movimentação.
-CREATE INDEX IF NOT EXISTS idx_transaction_id_gathering ON gathering.transaction(id_gathering);
-CREATE INDEX IF NOT EXISTS idx_transaction_id_event ON gathering.transaction(id_event);
-CREATE INDEX IF NOT EXISTS idx_transaction_id_player ON gathering.transaction(id_player);
-CREATE INDEX IF NOT EXISTS idx_transaction_type ON gathering.transaction(id_transaction_type);
--- 🔹 (Opcional) índice composto para carteiras (melhor em joins por gathering + player).
--- Isso substitui os dois índices separados (id_gathering, id_player) em alguns casos,
--- então se quiser ser minimalista, pode manter só o composto.
-CREATE INDEX IF NOT EXISTS idx_transaction_gathering_player ON gathering.transaction (id_gathering, id_player);
+-- round
+CREATE INDEX IF NOT EXISTS idx_round_id_event
+    ON gathering.round(id_event);
 
--- 🧱 Tabela gathering.result
-CREATE INDEX IF NOT EXISTS idx_result_event_player ON gathering.result(id_event, id_player);
+CREATE INDEX IF NOT EXISTS idx_round_id_player_winner
+    ON gathering.round(id_player_winner);
 
--- 🧱 Tabela gathering.player
--- Opcional — só crie se:
---  🔹você faz busca de jogadores por nome (WHERE name ILIKE 'gabriel%');
---  🔹ou ordena listas grandes de jogadores por nome com frequência.
-CREATE INDEX IF NOT EXISTS idx_gathering_player_name ON gathering.player(name);
--- CREATE INDEX IF NOT EXISTS idx_gathering_player_email ON gathering.player(email);
--- CREATE INDEX IF NOT EXISTS idx_gathering_player_username ON gathering.player(username);
+-- round_player
+CREATE INDEX IF NOT EXISTS idx_round_player_id_round
+    ON gathering.round_player(id_round);
+
+CREATE INDEX IF NOT EXISTS idx_round_player_id_player
+    ON gathering.round_player(id_player);
+
+-- transaction
+CREATE INDEX IF NOT EXISTS idx_transaction_gathering_player
+    ON gathering.transaction(id_gathering, id_player);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_id_event
+    ON gathering.transaction(id_event);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_id_player
+    ON gathering.transaction(id_player);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_type
+    ON gathering.transaction(id_transaction_type);
+
+-- result
+CREATE INDEX IF NOT EXISTS idx_result_event_player
+    ON gathering.result(id_event, id_player);
+
+-- player
+CREATE INDEX IF NOT EXISTS idx_gathering_player_name
+    ON gathering.player(name);
+
 /* CREATE INDEXES */

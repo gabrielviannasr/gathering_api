@@ -58,7 +58,7 @@ INSERT INTO gathering.round
  * 		1	        |   DIRETORIA	    |       3	    |   Tiny Leader	    |       2
  */
 
-INSERT INTO gathering.score
+INSERT INTO gathering.round_player
 (id_round, id_player) VALUES
 -- Round 1
 (1, 1),
@@ -161,11 +161,6 @@ SELECT setval(
 SELECT setval(
     'gathering.sequence_round',
     COALESCE((SELECT MAX(id) FROM gathering.round), 1)
-);
-
-SELECT setval(
-    'gathering.sequence_round_player',
-    COALESCE((SELECT MAX(id) FROM gathering.round_player), 1)
 );
 
 SELECT setval(
