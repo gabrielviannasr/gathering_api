@@ -1,7 +1,6 @@
 package br.com.gathering.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import jakarta.transaction.Transactional;
 public class PlayerService extends AbstractService<Player> {
 
 	private static final Logger log = LogHelper.getLogger();
+	private static final String ENTITY = "Player";
 
 	@Autowired
 	private PlayerRepository repository;
@@ -32,28 +32,41 @@ public class PlayerService extends AbstractService<Player> {
 	}
 
 	public List<Player> getList(Player model) {
+
+		LogHelper.info(log, "Fetching list", "model", model);
+
 		List<Player> result = repository.findAll(getExample(model), getSort());
+
         LogHelper.info(log, "Fetched list", "count", result.size());
+
         return result;
 	}
 
 	public Page<Player> getPage(Player model, Sort sort, int page, int size) {
+
 		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+
         Page<Player> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+
         LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+
         return result;
 	}
 
 	public Player getById(Long id) {
-		LogHelper.info(log, "Fetching by ID", "id", id);
-        Optional<Player> optional = repository.findById(id);
-        if (optional.isEmpty()) {
-            LogHelper.warn(log, "Not found", "id", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        Player event = optional.get();
-        LogHelper.info(log, "Found", "id", event.getId());
-        return event;
+
+	    LogHelper.info(log, "Fetching by id", "id", id);
+
+	    Player found = repository.findById(id)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, ENTITY + " not found", "id", id);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", found.getId());
+
+	    return found;
 	}
 
 	public Player create(PlayerDTO dto) {

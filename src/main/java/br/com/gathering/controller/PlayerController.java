@@ -28,14 +28,13 @@ public class PlayerController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/player";
-	private static final String ENTITY = "Player";
 
 	@Autowired
 	private PlayerService service;
 
 	@GetMapping
 	public List<Player> getList(Player model) {
-		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
+		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
 		return service.getList(model);
 	}
 
