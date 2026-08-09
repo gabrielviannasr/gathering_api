@@ -8,12 +8,12 @@ public final class GatheringFormatResponseMapper {
 
     public static GatheringFormatResponseDTO from(FormatProjection model) {
         return GatheringFormatResponseDTO.builder()
-                .idFormat(model.getIdFormat())
+        		.idFormat(model.getIdFormat())
                 .format(
-                        FormatResponseDTO.builder()
-                                .id(model.getIdFormat())
-                                .name(model.getFormatName())
-                                .build())
+                		FormatResponseDTO.builder()
+                			.id(model.getIdFormat())
+                            .name(model.getFormatName())
+                            .build())
                 .rounds(model.getRounds())
                 .build();
     }

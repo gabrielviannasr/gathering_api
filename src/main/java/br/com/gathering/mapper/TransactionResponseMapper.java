@@ -19,26 +19,26 @@ public final class TransactionResponseMapper {
                 .description(model.getDescription())
                 .type(
                         TransactionTypeResponseDTO.builder()
-                                .id(model.getType().getId())
-                                .name(model.getType().getName())
-                                .description(model.getType().getDescription())
-                                .build())
+                        	.id(model.getType().getId())
+                            .name(model.getType().getName())
+                            .description(model.getType().getDescription())
+                            .build())
                 .player(
                         PlayerResponseDTO.builder()
-                                .id(model.getPlayer().getId())
-                                .name(model.getPlayer().getName())
-                                .build())
+                            .id(model.getPlayer().getId())
+                            .name(model.getPlayer().getName())
+                            .build())
                 .event(
                         model.getEvent() == null ? null :
                         EventResponseDTO.builder()
-                                .id(model.getEvent().getId())
-                                .createdAt(model.getEvent().getCreatedAt())
-                                .format(
-                                        FormatResponseDTO.builder()
-                                                .id(model.getEvent().getFormat().getId())
-                                                .name(model.getEvent().getFormat().getName())
-                                                .build())
-                                .build())
+                            .id(model.getEvent().getId())
+                            .createdAt(model.getEvent().getCreatedAt())
+                            .format(
+                            		FormatResponseDTO.builder()
+                            			.id(model.getEvent().getFormat().getId())
+                                        .name(model.getEvent().getFormat().getName())
+                                        .build())
+                            .build())
                 .gathering(
                         GatheringResponseDTO.builder()
                                 .id(model.getGathering().getId())
@@ -56,14 +56,14 @@ public final class TransactionResponseMapper {
                 .description(model.getTransactionDescription())
                 .player(
                         PlayerResponseDTO.builder()
-                                .id(model.getIdPlayer())
-                                .name(model.getPlayerName())
-                                .build())
+                        	.id(model.getIdPlayer())
+                            .name(model.getPlayerName())
+                            .build())
                 .type(
                         TransactionTypeResponseDTO.builder()
-                                .id(model.getIdTransactionType())
-                                .name(model.getTransactionTypeName())
-                                .build())
+                            .id(model.getIdTransactionType())
+                            .name(model.getTransactionTypeName())
+                            .build())
                 .build();
     }
 

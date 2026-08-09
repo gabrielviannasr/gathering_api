@@ -11,9 +11,9 @@ public final class GatheringWalletResponseMapper {
                 .idPlayer(model.getIdPlayer())
                 .player(
                         PlayerResponseDTO.builder()
-                                .id(model.getIdPlayer())
-                                .name(model.getPlayerName())
-                                .build())
+                        	.id(model.getIdPlayer())
+                            .name(model.getPlayerName())
+                            .build())
                 .wallet(model.getWallet())
                 .build();
     }

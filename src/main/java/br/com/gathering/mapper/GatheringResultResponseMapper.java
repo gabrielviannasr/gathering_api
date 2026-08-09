@@ -11,9 +11,9 @@ public final class GatheringResultResponseMapper {
 	            .idPlayer(model.getIdPlayer())
                 .player(
                         PlayerResponseDTO.builder()
-                                .id(model.getIdPlayer())
-                                .name(model.getPlayerName())
-                                .build())
+                        	.id(model.getIdPlayer())
+                            .name(model.getPlayerName())
+                            .build())
 	            .rank(model.getRank())
 	            .events(model.getEvents())
 	            .wins(model.getWins())
