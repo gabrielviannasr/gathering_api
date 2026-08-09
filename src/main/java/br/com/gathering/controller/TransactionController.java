@@ -30,14 +30,13 @@ public class TransactionController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/transaction";
-	private static final String ENTITY = "Transaction";
 
 	@Autowired
 	private TransactionService service;
 
 	@GetMapping
 	public List<TransactionResponseDTO> getList(Transaction model) {
-		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
+		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
 		return service.getList(model);
 	}
 
@@ -53,7 +52,7 @@ public class TransactionController {
 	@GetMapping("/{id}")
 	public TransactionResponseDTO getById(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/{id}"), "id", id);
-		return service.getById(id);
+		return service.getResponseById(id);
 	}
 
 	@PostMapping

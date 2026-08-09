@@ -33,7 +33,8 @@ import jakarta.transaction.Transactional;
 public class TransactionService extends AbstractService<Transaction> {
 
 	private static final Logger log = LogHelper.getLogger();
-
+	private static final String ENTITY = "Transaction";
+	
 	@Autowired
 	private TransactionRepository repository;
 
@@ -48,27 +49,45 @@ public class TransactionService extends AbstractService<Transaction> {
 	}
 
 	public List<TransactionResponseDTO> getList(Transaction model) {
+
+		LogHelper.info(log, "Fetching list", "model", model);
+
 		List<Transaction> result = repository.findAll(getExample(model), getSort());
+
 		LogHelper.info(log, "Fetched list", "count", result.size());
+
 		return result.stream().map(this::buildTransactionResponse).toList();
 	}
 
 	public Page<TransactionResponseDTO> getPage(Transaction model, Sort sort, int page, int size) {
-		Page<Transaction> list = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
-		return list.map(this::buildTransactionResponse);
+
+		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+
+		Page<Transaction> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+
+		LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+
+		return result.map(this::buildTransactionResponse);		
 	}
 
-	public TransactionResponseDTO getById(Long id) {
-		LogHelper.info(log, "Fetching by ID", "id", id);
-		Transaction model = repository.findById(id)
-				.orElseThrow(() -> {
-					LogHelper.warn(log, "Not found", "id", id);
-					return new ResponseStatusException(HttpStatus.NOT_FOUND);
-				});
+	public Transaction getById(Long id) {
 
-		LogHelper.info(log, "Found", "id", model.getId());
+		LogHelper.info(log, "Fetching by id", "id", id);
 
-		return buildTransactionResponse(model);
+		Transaction found = repository.findById(id)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, ENTITY + " not found", "id", id);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", found.getId());
+
+		return found;
+	}
+
+	public TransactionResponseDTO getResponseById(Long id) {
+	    return buildTransactionResponse(getById(id));
 	}
 
 	@Transactional
@@ -91,10 +110,7 @@ public class TransactionService extends AbstractService<Transaction> {
 
 	public Transaction update(Long id, TransactionDTO dto) {
 
-//	    Transaction current = getById(id);
-		Transaction current = repository.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(
-						HttpStatus.NOT_FOUND, "Transaction not found"));
+		Transaction current = getById(id);
 	    
 	    Transaction model = dto.toModel();
 
@@ -118,9 +134,7 @@ public class TransactionService extends AbstractService<Transaction> {
 
 	public void delete(Long id) {
 
-	    Transaction current = repository.findById(id)
-	            .orElseThrow(() ->
-	                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+		Transaction current = getById(id);
 
 	    LogHelper.info(log, "Removing", "id", id);
 
