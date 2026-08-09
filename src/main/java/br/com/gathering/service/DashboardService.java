@@ -46,9 +46,12 @@ public class DashboardService {
     private GatheringRepository gatheringRepository;
 
     public List<GatheringWalletResponseDTO> getWallets(Long idGathering) {
-        LogHelper.info(log, "Fetching wallet balance", "idGathering", idGathering);
+
+        LogHelper.info(log, "Fetching wallet balance list", "idGathering", idGathering);
+
         List<PlayerWalletProjection> list = repository.getWalletBalance(idGathering);
-        LogHelper.info(log, "Fetched wallet balance", "count", list.size());
+
+        LogHelper.info(log, "Fetched wallet balance list", "count", list.size());
 
         return list.stream()
         		.map(this::buildGatheringWalletResponse)
@@ -57,17 +60,17 @@ public class DashboardService {
     
     public GatheringWalletResponseDTO getWallet(Long idGathering, Long idPlayer) {
 
-        LogHelper.info(log, "Fetching wallet balance",
-            "idGathering", idGathering,
-            "idPlayer", idPlayer);
+        LogHelper.info(log, "Fetching wallet balance by idGathering and idPlayer", "idGathering", idGathering, "idPlayer", idPlayer);
 
-        PlayerWalletProjection result = repository
+        PlayerWalletProjection found = repository
             .getWalletBalance(idGathering, idPlayer)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Carteira do jogador não encontrado"));
 
-        return buildGatheringWalletResponse(result);
+        LogHelper.info(log, "Found", "idGathering", idGathering, "idPlayer", idPlayer);
+
+        return buildGatheringWalletResponse(found);
     }
 
     private GatheringWalletResponseDTO buildGatheringWalletResponse(PlayerWalletProjection item) {
@@ -83,9 +86,13 @@ public class DashboardService {
     }
 
     public List<TransactionResponseDTO> getTransactions(Long idGathering) {
-        LogHelper.info(log, "Fetching player transactions", "idGathering", idGathering);
+
+        LogHelper.info(log, "Fetching transaction list", "idGathering", idGathering);
+
         List<PlayerTransactionProjection> list = repository.getTransactions(idGathering);
-        LogHelper.info(log, "Fetched player transactions", "count", list.size());
+
+        LogHelper.info(log, "Fetched transaction list", "count", list.size());
+
         return list.stream()
         		.map(this::buildTransactionResponse)
         		.toList();
@@ -111,9 +118,12 @@ public class DashboardService {
     }
 
     public List<GatheringFormatResponseDTO> getGatheringFormats(Long idGathering) {
-        LogHelper.info(log, "Fetching formats", "idGathering", idGathering);
+
+        LogHelper.info(log, "Fetching format list", "idGathering", idGathering);
+
         List<FormatProjection> list = repository.getFormatProjection(idGathering);
-        LogHelper.info(log, "Fetched formats", "count", list.size());
+
+        LogHelper.info(log, "Fetched format list", "count", list.size());
 
         int maxNameLength = list.stream()
                 .map(FormatProjection::getFormatName)
@@ -150,7 +160,9 @@ public class DashboardService {
     }
     
     public List<RankProjection> getRankProjection(Long idGathering) {
-        LogHelper.info(log, "Fetching player ranking", "idGathering", idGathering);
+
+        LogHelper.info(log, "Fetching gathering ranking list", "idGathering", idGathering);
+
         List<RankProjection> list = repository.getRankProjection(idGathering);
 
         int maxNameLength = list.stream()
@@ -160,7 +172,7 @@ public class DashboardService {
             .max()
             .orElse(Player.NAME_LENGTH);
 
-        LogHelper.info(log, "Fetched player ranking", "count", list.size(), "maxNameLength", maxNameLength);
+        LogHelper.info(log, "Fetched gathering ranking list", "count", list.size(), "maxNameLength", maxNameLength);
 
         // Logging details in formatted table style
         String format = "{ rank: %-2d | name: %-" + maxNameLength + "s | rankBalance: %8.2f }";
@@ -177,7 +189,9 @@ public class DashboardService {
     }
 
     public List<GatheringResultResponseDTO> getGatheringResults(Long idGathering) {
-        LogHelper.info(log, "Fetching result ranking", "idGathering", idGathering);
+
+        LogHelper.info(log, "Fetching gathering result list", "idGathering", idGathering);
+
         List<ResultProjection> list = repository.getResultProjection(idGathering);
 
         int maxNameLength = list.stream()
@@ -187,7 +201,7 @@ public class DashboardService {
             .max()
             .orElse(Player.NAME_LENGTH);
 
-        LogHelper.info(log, "Fetched result ranking", "count", list.size(), "maxNameLength", maxNameLength);
+        LogHelper.info(log, "Fetched gathering result list", "count", list.size(), "maxNameLength", maxNameLength);
 
         // Logging details in formatted table style
         String format = "{ rank: %-2d | name: %-" + maxNameLength + "s | finalBalance: %8.2f }";
@@ -208,15 +222,15 @@ public class DashboardService {
 
     public GatheringResultResponseDTO getGatheringResult(Long idGathering, Long idPlayer) {
 
-        LogHelper.info(log, "Fetching player result",
-            "idGathering", idGathering,
-            "idPlayer", idPlayer);
+        LogHelper.info(log, "Fetching gathering result", "idGathering", idGathering, "idPlayer", idPlayer);
 
         ResultProjection result = repository
             .getResultProjection(idGathering, idPlayer)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Resultado do jogador não encontrado"));
+
+        LogHelper.info(log, "Fetched gathering result", "idGathering", idGathering, "idPlayer", idPlayer);
 
         return buildGatheringResultResponse(result);
     }
@@ -244,21 +258,24 @@ public class DashboardService {
     }
 
     public GatheringSummaryResponseDTO getSummaryProjection(Long idGathering) {
-        LogHelper.info(log, "Fetching summary", "idGathering", idGathering);
+
+        LogHelper.info(log, "Fetching gathering summary", "idGathering", idGathering);
         
         Gathering gathering = gatheringRepository.findById(idGathering)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confra não encontrada"));
+        		.orElseThrow(() -> new ResponseStatusException(
+        				HttpStatus.NOT_FOUND, "Gathering not found"));
         
         GatheringSummaryProjection summary = repository.getSummaryProjection(idGathering);
 
-       GatheringSummaryResponseDTOBuilder builder = GatheringSummaryResponseDTO.builder()
-	    .idGathering(idGathering)
-	    .gathering(
-	        GatheringResponseDTO.builder()
-	            .id(gathering.getId())
-	            .name(gathering.getName())
-	            .year(gathering.getYear())
-	            .build()
+        GatheringSummaryResponseDTOBuilder builder = 
+        		GatheringSummaryResponseDTO.builder()
+	        		.idGathering(idGathering)
+	    		   	.gathering(
+	    		   		GatheringResponseDTO.builder()
+	    		   			.id(gathering.getId())
+	    		   			.name(gathering.getName())
+	    		   			.year(gathering.getYear())
+	    		   			.build()
 	    );
         
         if (summary == null) {
