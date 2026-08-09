@@ -21,6 +21,7 @@ import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
 import br.com.gathering.mapper.GatheringFormatResponseMapper;
+import br.com.gathering.mapper.GatheringResultResponseMapper;
 import br.com.gathering.mapper.GatheringWalletResponseMapper;
 import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.projection.RankProjection;
@@ -171,7 +172,7 @@ public class DashboardService {
 
 
 		return list.stream()
-		    .map(this::buildGatheringResultResponse)
+		    .map(GatheringResultResponseMapper::from)
 		    .toList();
     }
 
@@ -187,29 +188,7 @@ public class DashboardService {
 
         LogHelper.info(log, "Fetched gathering result", "idGathering", idGathering, "idPlayer", idPlayer);
 
-        return buildGatheringResultResponse(result);
-    }
-
-    private GatheringResultResponseDTO buildGatheringResultResponse(ResultProjection item) {
-        return GatheringResultResponseDTO.builder()
-            .idPlayer(item.getIdPlayer())
-    		.player(
-                Player.builder()
-                    .id(item.getIdPlayer())
-                    .name(item.getPlayerName())
-                    .build()
-            )
-            .rank(item.getRank())
-            .events(item.getEvents())
-            .wins(item.getWins())
-            .rounds(item.getRounds())
-            .positive(item.getPositive())
-            .negative(item.getNegative())
-            .rankBalance(item.getRankBalance())
-            .loserPot(item.getLoserPot())
-            .confraPot(item.getConfraPot())
-            .finalBalance(item.getFinalBalance())
-            .build();
+        return GatheringResultResponseMapper.from(result);
     }
 
     public GatheringSummaryResponseDTO getSummaryProjection(Long idGathering) {

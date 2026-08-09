@@ -1,6 +1,5 @@
 package br.com.gathering.dto.response;
 
-import br.com.gathering.entity.Player;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +8,7 @@ import lombok.Getter;
 public class GatheringResultResponseDTO {
 
 	private Long idPlayer;
-    private Player player;
+    private PlayerResponseDTO player;
     
     private Integer rank;
     private Integer events;
