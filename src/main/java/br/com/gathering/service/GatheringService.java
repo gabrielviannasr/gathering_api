@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 public class GatheringService extends AbstractService<Gathering> {
 
 	private static final Logger log = LogHelper.getLogger();
+	private static final String ENTITY = "Gathering";
 
 	@Autowired
 	private GatheringRepository repository;
@@ -31,32 +32,41 @@ public class GatheringService extends AbstractService<Gathering> {
 	}
 
 	public List<Gathering> getList(Gathering model) {
+
+		LogHelper.info(log, "Fetching list", "model", model);
+
 		List<Gathering> result = repository.findAll(getExample(model), getSort());
+
         LogHelper.info(log, "Fetched list", "count", result.size());
+
         return result;
 	}
 
 	public Page<Gathering> getPage(Gathering model, Sort sort, int page, int size) {
+
 		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
+
         Page<Gathering> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+
         LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+
         return result;
 	}
 
 	public Gathering getById(Long id) {
-	    LogHelper.info(log, "Fetching by ID", "id", id);
 
-	    Gathering gathering = repository.findById(id)
+	    LogHelper.info(log, "Fetching by id", "id", id);
+
+	    Gathering found = repository.findById(id)
 	            .orElseThrow(() -> {
-	                LogHelper.warn(log, "Gathering not found", "id", id);
+	                LogHelper.warn(log, ENTITY + " not found", "id", id);
 	                return new ResponseStatusException(
-	                        HttpStatus.NOT_FOUND,
-	                        "Gathering not found");
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
 	            });
 
-	    LogHelper.info(log, "Found", "id", gathering.getId());
+	    LogHelper.info(log, "Found", "id", found.getId());
 
-	    return gathering;
+	    return found;
 	}
 
 	@Transactional
@@ -79,7 +89,7 @@ public class GatheringService extends AbstractService<Gathering> {
 
 	@Transactional
 	public Gathering update(Long id, GatheringDTO dto) {
-	
+
 		Gathering current = getById(id);
 
 		Gathering model = dto.toModel();
@@ -98,8 +108,11 @@ public class GatheringService extends AbstractService<Gathering> {
 	}
 
 	public List<Integer> getYears() {
+
 	    List<Integer> years = repository.findAvailableYears();
+
 	    LogHelper.info(log, "Fetched years", "count", years.size());
+
 	    return years;
 	}
 

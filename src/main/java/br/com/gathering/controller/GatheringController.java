@@ -28,14 +28,13 @@ public class GatheringController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/gathering";
-	private static final String ENTITY = "Gathering";
 	
 	@Autowired
 	private GatheringService service;
 
 	@GetMapping
 	public List<Gathering> getList(Gathering model) {
-		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
+		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
 		return service.getList(model);
 	}
 
@@ -71,4 +70,5 @@ public class GatheringController {
 	    LogHelper.info(log, RouteHelper.GET(PATH, "/year"));
 	    return service.getYears();
 	}
+
 }
