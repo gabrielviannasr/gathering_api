@@ -7,6 +7,7 @@ import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.dto.response.TransactionTypeResponseDTO;
 import br.com.gathering.entity.Transaction;
+import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 
 public final class TransactionResponseMapper {
 
@@ -46,4 +47,24 @@ public final class TransactionResponseMapper {
                                 .build())
                 .build();
     }
+
+    public static TransactionResponseDTO from(PlayerTransactionProjection model) {
+        return TransactionResponseDTO.builder()
+                .id(model.getIdTransaction())
+                .amount(model.getAmount())
+                .createdAt(model.getCreatedAt())
+                .description(model.getTransactionDescription())
+                .player(
+                        PlayerResponseDTO.builder()
+                                .id(model.getIdPlayer())
+                                .name(model.getPlayerName())
+                                .build())
+                .type(
+                        TransactionTypeResponseDTO.builder()
+                                .id(model.getIdTransactionType())
+                                .name(model.getTransactionTypeName())
+                                .build())
+                .build();
+    }
+
 }

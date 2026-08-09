@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import br.com.gathering.dto.response.FormatResponseDTO;
 import br.com.gathering.dto.response.GatheringFormatResponseDTO;
 import br.com.gathering.dto.response.GatheringResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
@@ -22,6 +21,7 @@ import br.com.gathering.entity.Format;
 import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
 import br.com.gathering.mapper.GatheringWalletResponseMapper;
+import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.FormatProjection;
 import br.com.gathering.projection.gathering.GatheringSummaryProjection;
@@ -80,27 +80,8 @@ public class DashboardService {
         LogHelper.info(log, "Fetched transaction list", "count", list.size());
 
         return list.stream()
-        		.map(this::buildTransactionResponse)
+        		.map(TransactionResponseMapper::from)
         		.toList();
-    }
-
-    private TransactionResponseDTO buildTransactionResponse(PlayerTransactionProjection item) {
-    	return TransactionResponseDTO.builder()
-    			.id(item.getIdTransaction())
-    			.amount(item.getAmount())
-    			.createdAt(item.getCreatedAt())
-    			.description(item.getTransactionDescription())
-    			.player(
-					PlayerResponseDTO.builder()
-						.id(item.getIdPlayer())
-    					.name(item.getPlayerName())
-    					.build())
-    			.type(
-					TransactionTypeResponseDTO.builder()
-    					.id(item.getIdTransactionType())
-    					.name(item.getTransactionTypeName())
-    					.build())
-    			.build();
     }
 
     public List<GatheringFormatResponseDTO> getGatheringFormats(Long idGathering) {
