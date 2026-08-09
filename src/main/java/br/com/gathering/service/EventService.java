@@ -2,7 +2,6 @@ package br.com.gathering.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,7 @@ import jakarta.transaction.Transactional;
 public class EventService extends AbstractService<Event> {
 
 	private static final Logger log = LogHelper.getLogger();
+	private static final String ENTITY = "Event";
 
 	@Autowired
 	private EventRepository repository;
@@ -58,31 +58,41 @@ public class EventService extends AbstractService<Event> {
 	}
 
 	public List<Event> getList(Event model) {
-//		LogHelper.info(log, "Fetching list", "filter", model);
+
+		LogHelper.info(log, "Fetching list", "model", model);
+
         List<Event> result = repository.findAll(getExample(model), getSort());
+
         LogHelper.info(log, "Fetched list", "count", result.size());
+
         return result;
 	}
 
 	public Page<Event> getPage(Event model, Sort sort, int page, int size) {
+
 		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
-        Page<Event> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
-        LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
-        return result;
+
+		Page<Event> result = repository.findAll(getExample(model), PageRequest.of(page, size, sort));
+
+		LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
+
+		return result;
 	}
 
 	public Event getById(Long id) {
-//		Optional<Event> optional = repository.findById(id);
-//		return optional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		LogHelper.info(log, "Fetching by ID", "id", id);
-        Optional<Event> optional = repository.findById(id);
-        if (optional.isEmpty()) {
-            LogHelper.warn(log, "Not found", "id", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        Event event = optional.get();
-        LogHelper.info(log, "Found", "id", event.getId());
-        return event;
+
+	    LogHelper.info(log, "Fetching by id", "id", id);
+
+	    Event found = repository.findById(id)
+	            .orElseThrow(() -> {
+	                LogHelper.warn(log, ENTITY + " not found", "id", id);
+	                return new ResponseStatusException(
+	                        HttpStatus.NOT_FOUND, ENTITY + " not found");
+	            });
+
+	    LogHelper.info(log, "Found", "id", found.getId());
+
+	    return found;
 	}
 
 	@Transactional
@@ -145,6 +155,8 @@ public class EventService extends AbstractService<Event> {
 	@Transactional
 	public Event cancel(Long id) {
 
+		LogHelper.info(log, "Canceling", "id", id);
+
 	    Event event = getById(id);
 
 	    validateCancel(event);
@@ -162,11 +174,17 @@ public class EventService extends AbstractService<Event> {
 	    event.setFinalized(false);
 	    event.setUpdatedAt(LocalDateTime.now());
 
-	    return repository.save(event);
+	    Event saved = repository.save(event);
+
+	    LogHelper.info(log, "Canceled", "id", saved.getId());
+
+	    return saved;
 	}
 
 	@Transactional
 	public Event finalize(Long id) {
+
+		LogHelper.info(log, "Finalizing", "id", id);
 
 	    refresh(id);
 
@@ -185,11 +203,17 @@ public class EventService extends AbstractService<Event> {
 	    event.setUpdatedAt(now);
 	    event.setResultsAt(now);
 
-	    return repository.save(event);
+	    Event saved = repository.save(event);
+
+	    LogHelper.info(log, "Finalized", "id", saved.getId());
+
+	    return saved;
 	}
 
 	@Transactional
 	public Event reactivate(Long id) {
+
+		LogHelper.info(log, "Reactivating", "id", id);
 
 	    Event event = getById(id);
 
@@ -198,11 +222,17 @@ public class EventService extends AbstractService<Event> {
 	    event.setCanceled(false);
 	    event.setUpdatedAt(LocalDateTime.now());
 
-	    return repository.save(event);
+	    Event saved = repository.save(event);
+
+	    LogHelper.info(log, "Reactivated", "id", saved.getId());
+
+	    return saved;
 	}
 
 	@Transactional
 	public Event reopen(Long id) {
+
+		LogHelper.info(log, "Reopening", "id", id);
 
 	    Event event = getById(id);
 
@@ -213,7 +243,11 @@ public class EventService extends AbstractService<Event> {
 	    event.setFinalized(false);
 	    event.setUpdatedAt(LocalDateTime.now());
 
-	    return repository.save(event);
+	    Event saved = repository.save(event);
+
+	    LogHelper.info(log, "Reopened", "id", saved.getId());
+
+	    return saved;
 	}
 
 	private void createTransactions(Event event) {
@@ -233,8 +267,11 @@ public class EventService extends AbstractService<Event> {
 	}
 	
 	public void markAsUpdated(Long idEvent) {
+
 	    Event event = getById(idEvent);
+
 	    event.setUpdatedAt(LocalDateTime.now());
+
 	    repository.save(event);
 	}
 
@@ -250,14 +287,13 @@ public class EventService extends AbstractService<Event> {
 	    event.setLoserPot(stats.getLoserPot());
 	    event.setConfraPot(stats.getConfraPot());
 	    event.setPrize(stats.getPrize());
-
 //	    event.setUpdatedAt(LocalDateTime.now());
 
 	    repository.save(event);
 	}
 
 	private void refreshRounds(Long idEvent) {
-		
+
 		Event event = getById(idEvent);
 
 	    LogHelper.info(log, "Updating rounds after fee changes", "eventId", event.getId());
@@ -314,7 +350,9 @@ public class EventService extends AbstractService<Event> {
 	                "old", String.format("%.2f", oldPrize),
 	                "new", String.format("%.2f", newPrize)
 	            );
+
 	            round.setPrize(newPrize);
+
 	            changed = true;
 	        }
 
@@ -325,7 +363,9 @@ public class EventService extends AbstractService<Event> {
 	                "old", String.format("%.2f", oldLoser),
 	                "new", String.format("%.2f", newLoser)
 	            );
+
 	            round.setLoserPot(newLoser);
+
 	            changed = true;
 	        }
 

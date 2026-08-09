@@ -28,14 +28,13 @@ public class EventController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/event";
-	private static final String ENTITY = "Event";
 
 	@Autowired
 	private EventService service;
 
 	@GetMapping
 	public List<Event> getList(Event model) {
-		LogHelper.info(log, RouteHelper.GET(PATH), ENTITY, model);
+		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
 		return service.getList(model);
 	}
 
@@ -66,22 +65,16 @@ public class EventController {
 	    return service.update(id, dto);
 	}
 
-	@PostMapping("/{id}/finalize")
-	public Event finalize(@PathVariable Long id) {
-		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/finalize"), "id", id);
-	    return service.finalize(id);
-	}
-
-	@PostMapping("/{id}/reopen")
-	public Event reopen(@PathVariable Long id) {
-		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reopen"), "id", id);
-	    return service.reopen(id);
-	}
-
 	@PostMapping("/{id}/cancel")
 	public Event cancel(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/cancel"), "id", id);
 	    return service.cancel(id);
+	}
+
+	@PostMapping("/{id}/finalize")
+	public Event finalize(@PathVariable Long id) {
+		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/finalize"), "id", id);
+	    return service.finalize(id);
 	}
 
 	@PostMapping("/{id}/reactivate")
@@ -89,5 +82,11 @@ public class EventController {
 		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reactivate"), "id", id);
 	    return service.reactivate(id);
 	}
+
+	@PostMapping("/{id}/reopen")
+	public Event reopen(@PathVariable Long id) {
+		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reopen"), "id", id);
+	    return service.reopen(id);
+	}	
 
 }
