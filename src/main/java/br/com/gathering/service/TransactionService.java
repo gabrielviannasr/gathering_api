@@ -15,13 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.constant.TransactionType;
 import br.com.gathering.dto.request.TransactionDTO;
-import br.com.gathering.dto.response.EventResponseDTO;
-import br.com.gathering.dto.response.FormatResponseDTO;
-import br.com.gathering.dto.response.GatheringResponseDTO;
-import br.com.gathering.dto.response.PlayerResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
-import br.com.gathering.dto.response.TransactionTypeResponseDTO;
 import br.com.gathering.entity.Transaction;
+import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.repository.GatheringRepository;
 import br.com.gathering.repository.PlayerRepository;
@@ -56,7 +52,7 @@ public class TransactionService extends AbstractService<Transaction> {
 
 		LogHelper.info(log, "Fetched list", "count", result.size());
 
-		return result.stream().map(this::buildTransactionResponse).toList();
+		return result.stream().map(TransactionResponseMapper::from).toList();
 	}
 
 	public Page<TransactionResponseDTO> getPage(Transaction model, Sort sort, int page, int size) {
@@ -67,7 +63,7 @@ public class TransactionService extends AbstractService<Transaction> {
 
 		LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
 
-		return result.map(this::buildTransactionResponse);		
+		return result.map(TransactionResponseMapper::from);		
 	}
 
 	public Transaction getById(Long id) {
@@ -87,7 +83,7 @@ public class TransactionService extends AbstractService<Transaction> {
 	}
 
 	public TransactionResponseDTO getResponseById(Long id) {
-	    return buildTransactionResponse(getById(id));
+	    return TransactionResponseMapper.from(getById(id));
 	}
 
 	@Transactional
@@ -215,41 +211,6 @@ public class TransactionService extends AbstractService<Transaction> {
 			? walletProjection.getWallet()
 			: 0.0; // In case of first event, so without transactions
 	}
-
-    private TransactionResponseDTO buildTransactionResponse(Transaction item) {
-    	return TransactionResponseDTO.builder()
-    			.id(item.getId())
-    			.amount(item.getAmount())
-    			.createdAt(item.getCreatedAt())
-    			.description(item.getDescription())
-    			.type(
-					TransactionTypeResponseDTO.builder()
-						.id(item.getType().getId())
-						.name(item.getType().getName())
-						.description(item.getType().getDescription())
-						.build())
-    			.player(
-					PlayerResponseDTO.builder()
-						.id(item.getPlayer().getId())
-						.name(item.getPlayer().getName())
-	    				.build())
-    			.event(
-					item.getEvent() == null ? null :
-    				EventResponseDTO.builder()
-    				.id(item.getEvent().getId())
-    				.createdAt(item.getEvent().getCreatedAt())
-    				.format(FormatResponseDTO.builder()
-						.id(item.getEvent().getFormat().getId())
-						.name(item.getEvent().getFormat().getName())
-						.build())
-    				.build())
-    			.gathering(GatheringResponseDTO.builder()
-    					.id(item.getGathering().getId())
-    					.name(item.getGathering().getName())
-    					.year(item.getGathering().getYear())
-    					.build())
-    			.build();
-    }
 
 
 }
