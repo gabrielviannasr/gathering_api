@@ -130,45 +130,54 @@ INSERT INTO gathering.round_player
 
 SELECT setval(
     'gathering.sequence_event',
-    COALESCE((SELECT MAX(id) FROM gathering.event), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.event), 1),
+    EXISTS (SELECT 1 FROM gathering.event)
 );
 
 SELECT setval(
     'gathering.sequence_event_fee',
-    COALESCE((SELECT MAX(id) FROM gathering.event_fee), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.event_fee), 1),
+    EXISTS (SELECT 1 FROM gathering.event_fee)
 );
 
 SELECT setval(
     'gathering.sequence_format',
-    COALESCE((SELECT MAX(id) FROM gathering.format), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.format), 1),
+    EXISTS (SELECT 1 FROM gathering.format)
 );
 
 SELECT setval(
     'gathering.sequence_gathering',
-    COALESCE((SELECT MAX(id) FROM gathering.gathering), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.gathering), 1),
+    EXISTS (SELECT 1 FROM gathering.gathering)
 );
 
 SELECT setval(
     'gathering.sequence_player',
-    COALESCE((SELECT MAX(id) FROM gathering.player), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.player), 1),
+    EXISTS (SELECT 1 FROM gathering.player)
 );
 
 SELECT setval(
     'gathering.sequence_result',
-    COALESCE((SELECT MAX(id) FROM gathering.result), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.result), 1),
+    EXISTS (SELECT 1 FROM gathering.result)
 );
 
 SELECT setval(
     'gathering.sequence_round',
-    COALESCE((SELECT MAX(id) FROM gathering.round), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.round), 1),
+    EXISTS (SELECT 1 FROM gathering.round)
 );
 
 SELECT setval(
     'gathering.sequence_transaction',
-    COALESCE((SELECT MAX(id) FROM gathering.transaction), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.transaction), 1),
+    EXISTS (SELECT 1 FROM gathering.transaction)
 );
 
 SELECT setval(
     'gathering.sequence_transaction_type',
-    COALESCE((SELECT MAX(id) FROM gathering.transaction_type), 1)
+    COALESCE((SELECT MAX(id) FROM gathering.transaction_type), 1),
+    EXISTS (SELECT 1 FROM gathering.transaction_type)
 );
