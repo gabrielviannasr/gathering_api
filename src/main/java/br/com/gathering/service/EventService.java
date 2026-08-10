@@ -163,6 +163,8 @@ public class EventService extends AbstractService<Event> {
 
 	    deleteTransactions(event);
 
+	    resultService.deleteSnapshot(id);
+
 	    roundRepository.cancelByIdEvent(id);
 
 	    refresh(id);

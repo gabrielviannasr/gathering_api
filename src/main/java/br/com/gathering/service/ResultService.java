@@ -163,7 +163,7 @@ public class ResultService extends AbstractService<Result> {
 		saveResultSnapshot(event, results);
 	}
 
-	private void deleteSnapshot(Long idEvent) {
+	public void deleteSnapshot(Long idEvent) {
 
 	    repository.deleteByIdEvent(idEvent);
 
