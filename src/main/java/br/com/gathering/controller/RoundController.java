@@ -60,6 +60,12 @@ public class RoundController {
 		return service.getByIdEventAndRound(idEvent, round);
 	}
 
+	@GetMapping("/next")
+	public int getNextRound(@PathVariable Long idEvent) {
+		LogHelper.info(log, RouteHelper.GET(PATH, "/next"), "idEvent", idEvent);
+	    return service.getNextRound(idEvent);
+	}
+
 	@PostMapping
 	public Round create(@PathVariable Long idEvent, @RequestBody RoundDTO dto) {
 		LogHelper.info(log, RouteHelper.POST(PATH), "idEvent", idEvent, "dto", dto);

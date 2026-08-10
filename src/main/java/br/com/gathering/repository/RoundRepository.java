@@ -28,4 +28,10 @@ public interface RoundRepository extends JpaRepository<Round, Long>{
 	""")
 	void cancelByIdEvent(@Param("idEvent") Long idEvent);
 
+	@Query(nativeQuery = true, value = """
+		SELECT COALESCE(MAX(round), 0) + 1
+		FROM gathering.round
+		WHERE id_event = :idEvent
+	""")
+	int getNextRound(@Param("idEvent") Long idEvent);
 }

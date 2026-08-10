@@ -104,6 +104,19 @@ public class RoundService extends AbstractService<Round> {
 	    return found;
 	}
 
+	public int getNextRound(Long idEvent) {
+
+	    LogHelper.info(log, "Fetching next round", "idEvent", idEvent);
+	    
+	    eventService.getById(idEvent);
+
+	    int round = repository.getNextRound(idEvent);
+
+	    LogHelper.info(log, "Next round", "round", round);
+
+	    return round;
+	}
+
 	@Transactional
 	public Round create(Long idEvent, RoundDTO dto) {
 
