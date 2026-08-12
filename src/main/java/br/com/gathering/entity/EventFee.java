@@ -31,12 +31,12 @@ public class EventFee {
 	@SequenceGenerator(name = "gathering.sequence_event_fee", sequenceName = "gathering.sequence_event_fee", allocationSize = 1)
 	private Long id;
 
-	@Column(name = "id_event", nullable = false)
+	@Column(name = "id_event", insertable = false, updatable = false)
 	private Long idEvent;
 
 	@JsonIgnore
 	@ManyToOne
-	@JoinColumn(name = "id_event", nullable = true, insertable = false, updatable = false)
+	@JoinColumn(name = "id_event", nullable = false)
 	private Event event;
 
 	@Column(nullable = false)
