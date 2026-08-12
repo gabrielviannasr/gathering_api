@@ -2,6 +2,8 @@ package br.com.gathering.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,15 +129,41 @@ public class EventService extends AbstractService<Event> {
 	    current.setRoundFee(model.getRoundFee() == null ? 0.0 : model.getRoundFee());
 	    current.setUpdatedAt(LocalDateTime.now());
 
-	    eventFeeRepository.deleteByIdEvent(id);
-	    eventFeeRepository.flush();
+//	    eventFeeRepository.deleteByIdEvent(id);
+//	    eventFeeRepository.flush();
 
-	    current.getFees().clear();
+//	    current.getFees().clear();
 
-	    for (EventFee fee : model.getFees()) {
-	        fee.setIdEvent(id);
-	        current.getFees().add(fee);
-	    }    
+//	    for (EventFee fee : model.getFees()) {
+//	    	fee.setIdEvent(id);
+//	        fee.setEvent(current);
+//	        current.getFees().add(fee);
+//	    }
+	    
+	    Set<Integer> incomingPlayers = model.getFees().stream()
+	    	    .map(EventFee::getPlayers)
+	    	    .collect(Collectors.toSet());
+
+	    	current.getFees().removeIf(
+	    	    fee -> !incomingPlayers.contains(fee.getPlayers())
+	    	);
+
+
+	    for (EventFee incoming : model.getFees()) {
+
+	        EventFee existing = current.getFees().stream()
+	            .filter(fee -> fee.getPlayers().equals(incoming.getPlayers()))
+	            .findFirst()
+	            .orElse(null);
+
+	        if (existing != null) {
+	            existing.setPrizeFee(incoming.getPrizeFee());
+	            existing.setLoserFee(incoming.getLoserFee());
+	        } else {
+	            incoming.setEvent(current);
+	            current.getFees().add(incoming);
+	        }
+	    }
 
 	    validate(current);
 
