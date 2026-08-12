@@ -289,7 +289,7 @@ public class EventService extends AbstractService<Event> {
 	    event.setLoserPot(stats.getLoserPot());
 	    event.setConfraPot(stats.getConfraPot());
 	    event.setPrize(stats.getPrize());
-//	    event.setUpdatedAt(LocalDateTime.now());
+	    event.setUpdatedAt(LocalDateTime.now());
 
 	    repository.save(event);
 	}
