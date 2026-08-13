@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -84,6 +85,7 @@ public class Event {
 	@Column(name = "prize", nullable = false)
     private Double prize;
 
+	@OrderBy("players ASC")
 	@OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true) 
 	private List<EventFee> fees;
 
