@@ -103,7 +103,10 @@ public class Event {
 	    this.prize = (this.prize == null) ? 0.0 : this.prize;
 
 	    if (fees != null) {
-	        fees.forEach(fee -> fee.setEvent(this));
+	        fees.forEach(fee -> {
+	            fee.setIdEvent(this.id);
+	            fee.setEvent(this);
+	        });
 	    }
 	}
 

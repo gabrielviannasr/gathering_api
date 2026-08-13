@@ -133,6 +133,7 @@ public class EventService extends AbstractService<Event> {
 	    current.getFees().clear();
 
 	    for (EventFee fee : model.getFees()) {
+	        fee.setIdEvent(id);
 	        fee.setEvent(current);
 	        current.getFees().add(fee);
 	    }
