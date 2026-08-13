@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.gathering.dto.request.EventDTO;
-import br.com.gathering.dto.response.EventResponseDTO;
 import br.com.gathering.entity.Event;
-import br.com.gathering.mapper.EventMapper;
 import br.com.gathering.service.EventService;
 import br.com.gathering.util.LogHelper;
 import br.com.gathering.util.RouteHelper;
@@ -34,68 +32,61 @@ public class EventController {
 	@Autowired
 	private EventService service;
 
-	@Autowired
-	private EventMapper mapper;
-
 	@GetMapping
-	public List<EventResponseDTO> getList(Event model) {
+	public List<Event> getList(Event model) {
 		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
-		return service.getList(model)
-				.stream()
-	            .map(mapper::toResponse)
-	            .toList();
+		return service.getList(model);
 	}
 
 	@GetMapping("/page")
-	public Page<EventResponseDTO> getPage(Event model,
+	public Page<Event> getPage(Event model,
 			@SortDefault.SortDefaults({ @SortDefault(sort = "idGathering"), @SortDefault(sort = "createdAt") }) Sort sort,
 			@RequestParam int page,
 			@RequestParam int size) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
-		return service.getPage(model, sort, page, size)
-				.map(mapper::toResponse);
+		return service.getPage(model, sort, page, size);
 	}
 
 	@GetMapping("/{id}")
-	public EventResponseDTO getById(@PathVariable Long id) {
+	public Event getById(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/{id}"), "id", id);
-		return mapper.toResponse(service.getById(id));
+		return service.getById(id);
 	}
 
 	@PostMapping
-	public EventResponseDTO create(@RequestBody EventDTO dto) {
+	public Event create(@RequestBody EventDTO dto) {
 		LogHelper.info(log, RouteHelper.POST(PATH), "dto", dto);
-	    return mapper.toResponse(service.create(dto));
+	    return service.create(dto);
 	}
 
 	@PutMapping("/{id}")
-	public EventResponseDTO update(@PathVariable Long id, @RequestBody EventDTO dto) {
+	public Event update(@PathVariable Long id, @RequestBody EventDTO dto) {
 		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "dto", dto);
-	    return mapper.toResponse(service.update(id, dto));
+	    return service.update(id, dto);
 	}
 
 	@PostMapping("/{id}/cancel")
-	public EventResponseDTO cancel(@PathVariable Long id) {
+	public Event cancel(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/cancel"), "id", id);
-	    return mapper.toResponse(service.cancel(id));
+	    return service.cancel(id);
 	}
 
 	@PostMapping("/{id}/finalize")
-	public EventResponseDTO finalize(@PathVariable Long id) {
+	public Event finalize(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/finalize"), "id", id);
-	    return mapper.toResponse(service.finalize(id));
+	    return service.finalize(id);
 	}
 
 	@PostMapping("/{id}/reactivate")
-	public EventResponseDTO reactivate(@PathVariable Long id) {
+	public Event reactivate(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reactivate"), "id", id);
-	    return mapper.toResponse(service.reactivate(id));
+	    return service.reactivate(id);
 	}
 
 	@PostMapping("/{id}/reopen")
-	public EventResponseDTO reopen(@PathVariable Long id) {
+	public Event reopen(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.POST(PATH, "/{id}/reopen"), "id", id);
-	    return mapper.toResponse(service.reopen(id));
+	    return service.reopen(id);
 	}	
 
 }

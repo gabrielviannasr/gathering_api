@@ -127,7 +127,7 @@ public class EventService extends AbstractService<Event> {
 	    current.setRoundFee(model.getRoundFee() == null ? 0.0 : model.getRoundFee());
 	    current.setUpdatedAt(LocalDateTime.now());
 
-	    eventFeeRepository.deleteByIdIdEvent(id);
+	    eventFeeRepository.deleteByIdEvent(id);
 	    eventFeeRepository.flush();
 
 	    current.getFees().clear();
@@ -308,7 +308,7 @@ public class EventService extends AbstractService<Event> {
 
 	        EventFee fee = event.getFees()
 	            .stream()
-	            .filter(f -> f.getId().getPlayers() == playersTotal)
+	            .filter(f -> f.getPlayers() == playersTotal)
 	            .findFirst()
 	            .orElse(null);
 
@@ -381,20 +381,20 @@ public class EventService extends AbstractService<Event> {
 	    if (model.getFees() == null || model.getFees().isEmpty()) return;
 
 	    for (EventFee fee : model.getFees()) {
-	        double totalArrecadado = model.getRoundFee() * fee.getId().getPlayers();
+	        double totalArrecadado = model.getRoundFee() * fee.getPlayers();
 	        double totalDistribuido = fee.getPrizeFee() + fee.getLoserFee();
 
 	        if (Math.abs(totalArrecadado - totalDistribuido) > 0.001) {
-	        	LogHelper.warn(log, "Invalid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getId().getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
+	        	LogHelper.warn(log, "Invalid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
 	            throw new ResponseStatusException(
 	                HttpStatus.BAD_REQUEST,
 	                String.format(
 	                    "Distribuição inválida para %d jogadores: arrecadado = %.2f, distribuído = %.2f (diferença = %.2f)",
-	                    fee.getId().getPlayers(), totalArrecadado, totalDistribuido, totalArrecadado - totalDistribuido
+	                    fee.getPlayers(), totalArrecadado, totalDistribuido, totalArrecadado - totalDistribuido
 	                )
 	            );
 	        }
-	        LogHelper.info(log, "Valid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getId().getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
+	        LogHelper.info(log, "Valid fee configuration", "roundFee", model.getRoundFee(), "players", fee.getPlayers(), "loserFee", fee.getLoserFee(), "prizeFee", fee.getPrizeFee());
 	    }
 	}
 

@@ -3,11 +3,13 @@ package br.com.gathering.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,25 +26,21 @@ import lombok.Setter;
 @Table(name = "event_fee", schema = "gathering")
 public class EventFee {
 
-//	@Id
-//	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gathering.sequence_event_fee")
-//	@SequenceGenerator(name = "gathering.sequence_event_fee", sequenceName = "gathering.sequence_event_fee", allocationSize = 1)
-//	private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gathering.sequence_event_fee")
+	@SequenceGenerator(name = "gathering.sequence_event_fee", sequenceName = "gathering.sequence_event_fee", allocationSize = 1)
+	private Long id;
 
-	@EmbeddedId
-    private EventFeeId id;
-
-//	@Column(name = "id_event", insertable = false, updatable = false)
-//	private Long idEvent;
+	@Column(name = "id_event", insertable = false, updatable = false)
+	private Long idEvent;
 
 	@JsonIgnore
-	@MapsId("idEvent")
 	@ManyToOne
 	@JoinColumn(name = "id_event", nullable = false)
 	private Event event;
 
-//	@Column(nullable = false)
-//    private Integer players;
+	@Column(nullable = false)
+    private Integer players;
 
 	@Column(name = "prize_fee", nullable = false)
     private Double prizeFee;
@@ -51,7 +49,7 @@ public class EventFee {
     private Double loserFee;
 
 	public void init() {
-//	    this.players = (this.players == null) ? 0 : this.players;
+	    this.players = (this.players == null) ? 0 : this.players;
 	    this.prizeFee = (this.prizeFee == null) ? 0 : this.prizeFee;
 	    this.loserFee = (this.loserFee == null) ? 0.0 : this.loserFee;
 	}
@@ -60,8 +58,8 @@ public class EventFee {
 	public String toString() {
 	    return "EventFee: {\n"
 	            + "\tid: " + this.id + ",\n"
-//	            + "\tidEvent: " + this.idEvent + ",\n"
-//	            + "\tplayers: " + this.players + ",\n"
+	            + "\tidEvent: " + this.idEvent + ",\n"
+	            + "\tplayers: " + this.players + ",\n"
 	            + "\tprizeFee: " + this.prizeFee + ",\n"
 	            + "\tloserFee: " + this.loserFee + ",\n"
 	            + "}";
