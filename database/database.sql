@@ -126,17 +126,18 @@ COMMENT ON COLUMN gathering.event.confra_pot IS 'Total acumulado destinado ao po
 COMMENT ON COLUMN gathering.event.prize IS 'Total acumulado destinado à premiação do evento.';
 
 CREATE TABLE gathering.event_fee (
-    id INT DEFAULT nextval('gathering.sequence_event_fee'),-- PRIMARY KEY,
+    -- id INT DEFAULT nextval('gathering.sequence_event_fee'),-- PRIMARY KEY,
     id_event INT NOT NULL,
     players INT NOT NULL,-- CHECK (players >= 0),
     prize_fee NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (prize_fee >= 0),
     loser_fee NUMERIC(10,2) NOT NULL DEFAULT 0,-- CHECK (loser_fee >= 0),
 
-    CONSTRAINT pk_event_fee PRIMARY KEY (id),
+    -- CONSTRAINT pk_event_fee PRIMARY KEY (id),
+    CONSTRAINT pk_event_fee PRIMARY KEY (id_event, players),
 
     CONSTRAINT fk_event_fee_event FOREIGN KEY (id_event) REFERENCES gathering.event(id),
 
-    CONSTRAINT uq_event_fee_event_players UNIQUE (id_event, players),
+    -- CONSTRAINT uq_event_fee_event_players UNIQUE (id_event, players),
 
     CONSTRAINT ch_event_fee_players CHECK (players >= 0),
     CONSTRAINT ch_event_fee_prize_fee CHECK (prize_fee >= 0),

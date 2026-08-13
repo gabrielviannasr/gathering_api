@@ -198,7 +198,7 @@ public class RoundService extends AbstractService<Round> {
 		
 		EventFee fee = event.getFees()
 			    .stream()
-			    .filter(f -> f.getPlayers().equals(model.getPlayersTotal()))
+			    .filter(f -> f.getId().getPlayers().equals(model.getPlayersTotal()))
 			    .findFirst()
 			    .orElse(null);
 		

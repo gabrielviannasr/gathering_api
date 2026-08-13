@@ -8,6 +8,6 @@ import br.com.gathering.entity.EventFee;
 @Repository
 public interface EventFeeRepository extends JpaRepository<EventFee, Long>{
 
-	void deleteByIdEvent(Long idEvent);
+	void deleteByIdIdEvent(Long idEvent);
 
 }

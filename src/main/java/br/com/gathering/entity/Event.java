@@ -147,7 +147,7 @@ public class Event {
         } else {
             sb.append("[\n");
             for (EventFee fee : fees) {
-                sb.append("\t\t{ players: ").append(fee.getPlayers())
+                sb.append("\t\t{ players: ").append(fee.getId().getPlayers())
                   .append(", prizeFee: ").append(fee.getPrizeFee())
                   .append(", loserFee: ").append(fee.getLoserFee())
                   .append(" },\n");
