@@ -11,14 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.dto.response.GatheringFormatResponseDTO;
-import br.com.gathering.dto.response.GatheringResponseDTO;
 import br.com.gathering.dto.response.GatheringResultResponseDTO;
 import br.com.gathering.dto.response.GatheringSummaryResponseDTO;
-import br.com.gathering.dto.response.GatheringSummaryResponseDTO.GatheringSummaryResponseDTOBuilder;
 import br.com.gathering.dto.response.GatheringWalletResponseDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.entity.Format;
-import br.com.gathering.entity.Gathering;
 import br.com.gathering.entity.Player;
 import br.com.gathering.mapper.GatheringFormatResponseMapper;
 import br.com.gathering.mapper.GatheringResultResponseMapper;
@@ -31,7 +28,6 @@ import br.com.gathering.projection.gathering.PlayerTransactionProjection;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.projection.gathering.ResultProjection;
 import br.com.gathering.repository.DashboardRepository;
-import br.com.gathering.repository.GatheringRepository;
 import br.com.gathering.util.LogHelper;
 
 @Transactional(readOnly = true)
@@ -42,9 +38,9 @@ public class DashboardService {
 
     @Autowired
     private DashboardRepository repository;
-    
+
     @Autowired
-    private GatheringRepository gatheringRepository;
+    private GatheringService gatheringService;
 
     public List<GatheringWalletResponseDTO> getWallets(Long idGathering) {
 
@@ -194,48 +190,23 @@ public class DashboardService {
     public GatheringSummaryResponseDTO getSummaryProjection(Long idGathering) {
 
         LogHelper.info(log, "Fetching gathering summary", "idGathering", idGathering);
-        
-        Gathering gathering = gatheringRepository.findById(idGathering)
-        		.orElseThrow(() -> new ResponseStatusException(
-        				HttpStatus.NOT_FOUND, "Gathering not found"));
-        
+
+        gatheringService.getById(idGathering);
+
         GatheringSummaryProjection summary = repository.getSummaryProjection(idGathering);
 
-        GatheringSummaryResponseDTOBuilder builder = 
-        		GatheringSummaryResponseDTO.builder()
-	        		.idGathering(idGathering)
-	    		   	.gathering(
-	    		   		GatheringResponseDTO.builder()
-	    		   			.id(gathering.getId())
-	    		   			.name(gathering.getName())
-	    		   			.year(gathering.getYear())
-	    		   			.build()
-	    );
-        
         if (summary == null) {
-        	LogHelper.info(log, "Summary not found. Returning empty summary", "idGathering", idGathering);
 
-            return builder
-        	    .events(0)
-        	    .players(0)
-        	    .rounds(0)
-        	    .loserPot(0.0)
-        	    .confraPot(0.0)
-        	    .prize(0.0)                	
-        		.build();
+        	LogHelper.info(log, "Summary not found", "idGathering", idGathering);
 
-        } else {
-            LogHelper.info(log, "Fetched summary successfully", "idGathering", idGathering);
+        	throw new ResponseStatusException(
+        			HttpStatus.NOT_FOUND, "Summary not found");
+
         }
 
-        return  builder
-    	    .events(summary.getEvents())
-    	    .players(summary.getPlayers())
-    	    .rounds(summary.getRounds())
-    	    .loserPot(summary.getLoserPot())
-    	    .confraPot(summary.getConfraPot())
-    	    .prize(summary.getPrize())
-    	    .build();
+        LogHelper.info(log, "Fetched summary successfully", "idGathering", idGathering);
+
+        return GatheringSummaryResponseDTO.from(summary);
     }
 
 }

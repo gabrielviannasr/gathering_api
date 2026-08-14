@@ -156,8 +156,9 @@ public interface DashboardRepository extends ViewRepository {
 
     @Query(nativeQuery = true, value = """
 			SELECT
-				id_gathering AS idGathering,
-				gathering_name AS gatheringName,
+				id_gathering AS id,
+				year,
+				gathering_name AS name,
 				events,
 				players,
 				rounds,

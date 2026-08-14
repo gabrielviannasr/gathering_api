@@ -28,7 +28,7 @@ public class FormatController {
 
 	private static final Logger log = LogHelper.getLogger();
 	private static final String PATH = "/format";
-	
+
 	@Autowired
 	private FormatService service;
 
