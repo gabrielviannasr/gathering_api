@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.gathering.dto.request.TransactionDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.entity.Transaction;
+import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.service.TransactionService;
 import br.com.gathering.util.LogHelper;
 import br.com.gathering.util.RouteHelper;
@@ -46,7 +47,7 @@ public class TransactionController {
 			@RequestParam int page,
 			@RequestParam int size) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
-		return service.getPage(model, sort, page, size);
+		return service.getPage(model, sort, page, size).map(TransactionResponseMapper::from);	
 	}
 
 	@GetMapping("/{id}")

@@ -55,7 +55,7 @@ public class TransactionService extends AbstractService<Transaction> {
 		return result.stream().map(TransactionResponseMapper::from).toList();
 	}
 
-	public Page<TransactionResponseDTO> getPage(Transaction model, Sort sort, int page, int size) {
+	public Page<Transaction> getPage(Transaction model, Sort sort, int page, int size) {
 
 		LogHelper.info(log, "Fetching paged list", "page", page, "size", size);
 
@@ -63,7 +63,7 @@ public class TransactionService extends AbstractService<Transaction> {
 
 		LogHelper.info(log, "Fetched paged list", "totalElements", result.getTotalElements());
 
-		return result.map(TransactionResponseMapper::from);		
+		return result;
 	}
 
 	public Transaction getById(Long id) {

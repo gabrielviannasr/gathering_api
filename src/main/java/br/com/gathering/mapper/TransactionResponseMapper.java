@@ -34,10 +34,12 @@ public final class TransactionResponseMapper {
                             .id(model.getEvent().getId())
                             .createdAt(model.getEvent().getCreatedAt())
                             .format(
-                            		FormatResponseDTO.builder()
-                            			.id(model.getEvent().getFormat().getId())
-                                        .name(model.getEvent().getFormat().getName())
-                                        .build())
+                            		model.getEvent().getFormat() == null?
+                        				null:
+	                            		FormatResponseDTO.builder()
+	                            			.id(model.getEvent().getFormat().getId())
+	                                        .name(model.getEvent().getFormat().getName())
+	                                        .build())
                             .build())
                 .gathering(
                         GatheringResponseDTO.builder()
