@@ -616,22 +616,57 @@ COMMENT ON VIEW gathering.vw_gathering_player_wallet IS
 'Exibe o saldo (carteira) de cada jogador agrupado por confra, 
 calculado a partir de todas as transações relacionadas.';
 
+CREATE OR REPLACE VIEW gathering.vw_gathering_player AS
+    SELECT
+        g.id AS id_gathering,
+        g.year,
+        g.name AS gathering_name,
+        COUNT(DISTINCT rp.id_player) AS players
+    FROM gathering.gathering g
+    INNER JOIN gathering.event e
+        ON e.id_gathering = g.id
+    INNER JOIN gathering.round r
+        ON r.id_event = e.id
+        AND r.canceled = false
+    INNER JOIN gathering.round_player rp
+        ON rp.id_round = r.id
+    WHERE
+        e.canceled = false
+    GROUP BY
+        g.id,
+        g.year,
+        g.name;
+
+COMMENT ON VIEW gathering.vw_gathering_player IS
+'Exibe o total de jogadores distintos que participaram de cada confra (gathering).';
+
 CREATE OR REPLACE VIEW gathering.vw_gathering_summary AS
+SELECT
+    es.id_gathering,
+    gp.year,
+    es.gathering_name,
+    COALESCE(gp.players, 0) AS players,
+    es.events,
+    es.rounds,
+    es.loser_pot,
+    es.confra_pot,
+    es.prize
+FROM (
     SELECT
         id_gathering,
         gathering_name,
         COUNT(id_event) AS events,
-        COALESCE(SUM(players), 0) AS players,
         COALESCE(SUM(rounds), 0) AS rounds,
         COALESCE(SUM(loser_pot), 0) AS loser_pot,
         COALESCE(SUM(confra_pot), 0) AS confra_pot,
         COALESCE(SUM(prize), 0) AS prize
-    FROM
-        gathering.vw_event_summary
+    FROM gathering.vw_event_summary
     GROUP BY
-        id_gathering, gathering_name
-    ORDER BY
-        gathering_name;
+        id_gathering,
+        gathering_name
+) es
+LEFT JOIN gathering.vw_gathering_player gp
+    ON gp.id_gathering = es.id_gathering;
 
 COMMENT ON VIEW gathering.vw_gathering_summary IS
 'Apresenta um resumo consolidado de cada confra (gathering),
