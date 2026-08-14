@@ -56,15 +56,15 @@ public class TransactionController {
 	}
 
 	@PostMapping
-	public Transaction create(@RequestBody TransactionDTO dto) {
+	public TransactionResponseDTO create(@RequestBody TransactionDTO dto) {
 		LogHelper.info(log, RouteHelper.POST(PATH), "dto", dto);
-	    return service.create(dto);
+	    return TransactionResponseDTO.from(service.create(dto));
 	}
 
 	@PutMapping("/{id}")
-	public Transaction update(@PathVariable Long id, @RequestBody TransactionDTO dto) {
+	public TransactionResponseDTO update(@PathVariable Long id, @RequestBody TransactionDTO dto) {
 		LogHelper.info(log, RouteHelper.PUT(PATH, "/{id}"), "id", id, "dto", dto);
-	    return service.update(id, dto);
+	    return TransactionResponseDTO.from(service.update(id, dto));
 	}
 
 
