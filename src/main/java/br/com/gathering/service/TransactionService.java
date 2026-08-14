@@ -15,9 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.gathering.constant.TransactionType;
 import br.com.gathering.dto.request.TransactionDTO;
-import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.entity.Transaction;
-import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.projection.gathering.PlayerWalletProjection;
 import br.com.gathering.repository.GatheringRepository;
 import br.com.gathering.repository.PlayerRepository;
@@ -44,7 +42,7 @@ public class TransactionService extends AbstractService<Transaction> {
 		return Sort.by(Order.asc("idGathering"), Order.asc("idPlayer"), Order.asc("createdAt"));
 	}
 
-	public List<TransactionResponseDTO> getList(Transaction model) {
+	public List<Transaction> getList(Transaction model) {
 
 		LogHelper.info(log, "Fetching list", "model", model);
 
@@ -52,7 +50,7 @@ public class TransactionService extends AbstractService<Transaction> {
 
 		LogHelper.info(log, "Fetched list", "count", result.size());
 
-		return result.stream().map(TransactionResponseMapper::from).toList();
+		return result;
 	}
 
 	public Page<Transaction> getPage(Transaction model, Sort sort, int page, int size) {
@@ -82,9 +80,9 @@ public class TransactionService extends AbstractService<Transaction> {
 		return found;
 	}
 
-	public TransactionResponseDTO getResponseById(Long id) {
-	    return TransactionResponseMapper.from(getById(id));
-	}
+//	public TransactionResponseDTO getResponseById(Long id) {
+//	    return TransactionResponseMapper.from(getById(id));
+//	}
 
 	@Transactional
 	public Transaction create(TransactionDTO dto) {

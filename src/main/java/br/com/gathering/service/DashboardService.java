@@ -20,7 +20,6 @@ import br.com.gathering.entity.Player;
 import br.com.gathering.mapper.GatheringFormatResponseMapper;
 import br.com.gathering.mapper.GatheringResultResponseMapper;
 import br.com.gathering.mapper.GatheringWalletResponseMapper;
-import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.projection.RankProjection;
 import br.com.gathering.projection.gathering.FormatProjection;
 import br.com.gathering.projection.gathering.GatheringSummaryProjection;
@@ -78,7 +77,7 @@ public class DashboardService {
         LogHelper.info(log, "Fetched transaction list", "count", list.size());
 
         return list.stream()
-        		.map(TransactionResponseMapper::from)
+        		.map(TransactionResponseDTO::from)
         		.toList();
     }
 

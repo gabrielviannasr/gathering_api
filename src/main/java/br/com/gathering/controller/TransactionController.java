@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.gathering.dto.request.TransactionDTO;
 import br.com.gathering.dto.response.TransactionResponseDTO;
 import br.com.gathering.entity.Transaction;
-import br.com.gathering.mapper.TransactionResponseMapper;
 import br.com.gathering.service.TransactionService;
 import br.com.gathering.util.LogHelper;
 import br.com.gathering.util.RouteHelper;
@@ -38,7 +37,7 @@ public class TransactionController {
 	@GetMapping
 	public List<TransactionResponseDTO> getList(Transaction model) {
 		LogHelper.info(log, RouteHelper.GET(PATH), "model", model);
-		return service.getList(model);
+		return service.getList(model).stream().map(TransactionResponseDTO::from).toList();
 	}
 
 	@GetMapping("/page")
@@ -47,13 +46,13 @@ public class TransactionController {
 			@RequestParam int page,
 			@RequestParam int size) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/page"), "page", page, "size", size);
-		return service.getPage(model, sort, page, size).map(TransactionResponseMapper::from);	
+		return service.getPage(model, sort, page, size).map(TransactionResponseDTO::from);	
 	}
 
 	@GetMapping("/{id}")
 	public TransactionResponseDTO getById(@PathVariable Long id) {
 		LogHelper.info(log, RouteHelper.GET(PATH, "/{id}"), "id", id);
-		return service.getResponseById(id);
+		return TransactionResponseDTO.from(service.getById(id));
 	}
 
 	@PostMapping
