@@ -1,5 +1,6 @@
 package br.com.gathering.dto.request;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import br.com.gathering.entity.Event;
@@ -23,7 +24,7 @@ public class EventDTO {
 
 	private Long idFormat;
 
-//	private LocalDateTime createdAt;
+	private LocalDateTime createdAt;
 //
 //    private Integer players;
 //
@@ -46,7 +47,7 @@ public class EventDTO {
 //        event.setId(this.id);
         event.setIdGathering(this.idGathering);
         event.setIdFormat(this.idFormat);
-//        event.setCreatedAt(this.createdAt);
+        event.setCreatedAt(this.createdAt);
 //        event.setPlayers(this.players);
 //        event.setRounds(this.rounds);
         event.setConfraFee(this.confraFee);
